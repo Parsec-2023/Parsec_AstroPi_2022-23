@@ -1,3 +1,3 @@
 print("sciao a tuti")
-x = 2 * 9
+x = 2 * 10
 print(x)
