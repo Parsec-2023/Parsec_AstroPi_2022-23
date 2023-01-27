@@ -15,6 +15,7 @@ orbit = "^0.2"
 sense-hat = "^2.4.0"
 matplotlib = "^3.6.2"
 sklearn = "^0.0.post1"
+skyfield = "^1.45"
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.6.2"

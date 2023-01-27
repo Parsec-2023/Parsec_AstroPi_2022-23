@@ -10,8 +10,7 @@ from time import sleep
 # Create a `datetime` variable to store the start time
 start_time = datetime.now()
 # Create a `datetime` variable to store the current time
-# (these will be almost the same at the start)
-now_time = datetime.now()
+now_time = start_time
 #store the time each task has run for the last time
 prev_time_task1 = now_time
 prev_time_task2 = now_time
