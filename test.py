@@ -11,6 +11,13 @@ import csv
 import os
 import cv2
 
+picsPath = "/home/parsec/Data/images/IR/sequence1"
+pics = []
+for path in os.listdir(picsPath):
+    # check if current path is a file
+    if os.path.isfile(os.path.join(picsPath, path)):
+        pics.append(path)
+
 # get start time
 startTime = datetime.now()
 
@@ -84,10 +91,10 @@ def main():
         #-start counting the time
         s = datetime.now()
 
-        # take a picture and save data every >=10 seconds
-        if (now >= (picTime + timedelta(seconds = 10))):
+        # take a picture and save data every >=1 second
+        if (now >= (picTime + timedelta(seconds = 1))):
             # if it is nighttime, do not take the picture
-            if (ISS.at(load.timescale().now()).is_sunlit(ephemeris)):
+            if (True): #ISS.at(load.timescale().now()).is_sunlit(ephemeris)
                 try:
                     # set picture path
                     picPath = str(baseFolder) + "/Pictures/" + "image_" + str(n) + ".jpg"
@@ -107,26 +114,34 @@ def main():
                     camera.exif_tags['GPS.GPSLongitudeRef'] = ("W" if west else "E")
 
                     # take a picture at full resolution
-                    camera.capture(picPath)
+                    #camera.capture(picPath)
 
                     # open the picture as an OpenCV image
-                    image = cv2.imread(picPath)
+                    print(pics[n])
+                    image = cv2.imread("/home/parsec/Data/images/IR/sequence1/" + pics[n])
 
                     # get segmented image
                     segmented = segmentation(image)
 
                     # if the image is relevant to our research
-                    if (isRelevant(segmented)):
+                    score = evaluate(segmented)
+                    if (score >= 5.0):
                         # crop it to the window
                         image = cropCircle(image)
+
+                        print(image.shape[0], image.shape[1])
 
                         # save the cropped image to memory
                         cv2.imwrite(picPath, image)
 
                         # log the coordinates where the pic was taken
-                        log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: " + str(latitude) + ", " + str(longitude))
+                        log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
                     else:
                         log("Picture not taken - Not relevant")
+
+                    #-print time taken
+                    print(datetime.now() - s)
+
                 except Exception as e:
                     log("Error taking a picture: " + str(e))
             else:
@@ -147,9 +162,6 @@ def main():
 
         # update the current time
         now = datetime.now()
-
-        #-print time taken
-        print(datetime.now() - s)
 
     # close camera and files
     camera.close()
@@ -263,7 +275,7 @@ def segmentation(im):
 
     return res
 
-def isRelevant(im):
+def evaluate(im):
     # split the image into the 3 colour channels
     b, g, r = cv2.split(im)
 
@@ -286,9 +298,9 @@ def isRelevant(im):
     score = (20 * percentageGreen) + (2 * percentageRed)
 
     print("Score:", score)
-    print("Relevant" if (score > 15.0) else "Not Relevant")
+    print("Relevant" if (score > 5.0) else "Not Relevant")
 
-    return score > 5.0
+    return score
 
 def convertToExif(angle):
     # get the sign
