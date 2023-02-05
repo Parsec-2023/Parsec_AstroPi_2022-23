@@ -18,6 +18,7 @@ for path in os.listdir(picsPath):
     if os.path.isfile(os.path.join(picsPath, path)):
         pics.append(path)
 
+
 # get start time
 startTime = datetime.now()
 
@@ -120,18 +121,22 @@ def main():
                     print(pics[n])
                     image = cv2.imread("/home/parsec/Data/images/IR/sequence1/" + pics[n])
 
-                    # get segmented image
-                    segmented = segmentation(image)
+                    # scale down the image to make the following operations faster
+                    scalingFactor = 0.5
+                    scaledImage = cv2.resize(image, None, fx = scalingFactor, fy = scalingFactor)
 
-                    # if the image is relevant to our research
+                    # perform image segmentation on the scaled picture
+                    segmented = segmentation(scaledImage)
+
+                    # if the picture is relevant to our research (there is enough land)
                     score = evaluate(segmented)
-                    if (score >= 5.0):
-                        # crop it to the window
-                        image = cropCircle(image)
+                    if (True): #score >= 5.0
+                        # crop the image to the window of the ISS to save storage space
+                        image = cropCircle(scaledImage, image, scalingFactor)
 
                         print(image.shape[0], image.shape[1])
 
-                        # save the cropped image to memory
+                        # save the cropped image
                         cv2.imwrite(picPath, image)
 
                         # log the coordinates where the pic was taken
@@ -344,30 +349,35 @@ def log(msg):
     logfile.flush()
     os.fsync(logfile)
 
-def cropCircle(im):
-    # get the size of the image
-    height, width, _ = im.shape
+def cropCircle(scaledIm, im, scalingFactor):
+    # get the size of the scaled image
+    height, width, _ = scaledIm.shape
 
-    # make a copy of the image. "image" will stay intact, "im" will be manupulated to extract the mask
-    image = im
+    # "image" will stay intact, "scaledIm" will be manupulated to extract the mask
+    image = scaledIm
     
     # get the round mask of the window
-    mk = mask(im)
+    mk = mask(scaledIm)
 
-    # find contours
+    # find contours in the image
     contours, _ = cv2.findContours(mk, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     for contour in contours: # for each contour...
         # find a circle that fits the contour of the frame of the window
-        (xCenter, yCenter), radius = cv2.minEnclosingCircle(contour)
+        (xCentre, yCentre), radius = cv2.minEnclosingCircle(contour)
         # if the circle is the right size (1/4 height < radius < 2/3 height)
         if ((radius > (min(height, width) / 4)) and (radius < (min(height, width) / 1.5))):
+            # scale the circle to fit the original image
+            radius /= scalingFactor
+            xCentre /= scalingFactor
+            yCentre /= scalingFactor
+            
             # calculate the size of the circle
             size = (2 * int(radius), 2 * int(radius))
 
             # crop the image to fit the circle that has been found
-            image = cv2.getRectSubPix(image, size, (int(xCenter + 5), int(yCenter)))
+            im = cv2.getRectSubPix(im, size, (int(xCentre + 5), int(yCentre)))
             break
-    return image
+    return im
 
 def colourise(im, r, g, b):
     # turns a single channel black and white image into a 3 channel BGR image of a given colour

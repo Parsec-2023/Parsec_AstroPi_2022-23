@@ -6,7 +6,6 @@ from PIL import Image, ImageEnhance
 from sense_hat import SenseHat
 from datetime import datetime, timedelta
 from picamera import PiCamera
-from time import sleep
 import csv
 import os
 import cv2
@@ -84,8 +83,8 @@ def main():
         #-start counting the time
         s = datetime.now()
 
-        # take a picture and save data every >=10 seconds
-        if (now >= (picTime + timedelta(seconds = 10))):
+        # take a picture and save data every >=15 seconds
+        if (now >= (picTime + timedelta(seconds = 15))):
             # if it is nighttime, do not take the picture
             if (ISS.at(load.timescale().now()).is_sunlit(ephemeris)):
                 try:
@@ -112,21 +111,30 @@ def main():
                     # open the picture as an OpenCV image
                     image = cv2.imread(picPath)
 
-                    # get segmented image
-                    segmented = segmentation(image)
+                    # scale down the image to make the following operations faster
+                    scalingFactor = 0.5
+                    scaledImage = cv2.resize(image, None, fx = scalingFactor, fy = scalingFactor)
 
-                    # if the image is relevant to our research
-                    if (isRelevant(segmented)):
-                        # crop it to the window
-                        image = cropCircle(image)
+                    # perform image segmentation on the scaled picture
+                    segmented = segmentation(scaledImage)
 
-                        # save the cropped image to memory
+                    # if the picture is relevant to our research (there is enough land)
+                    score = evaluate(segmented)
+                    if (score >= 2.5):
+                        # crop the image to the window of the ISS to save storage space
+                        image = cropCircle(scaledImage, image, scalingFactor)
+
+                        # save the cropped image
                         cv2.imwrite(picPath, image)
 
                         # log the coordinates where the pic was taken
-                        log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: " + str(latitude) + ", " + str(longitude))
+                        log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
                     else:
                         log("Picture not taken - Not relevant")
+
+                    #-print time taken
+                    print(datetime.now() - s)
+
                 except Exception as e:
                     log("Error taking a picture: " + str(e))
             else:
@@ -147,9 +155,6 @@ def main():
 
         # update the current time
         now = datetime.now()
-
-        #-print time taken
-        print(datetime.now() - s)
 
     # close camera and files
     camera.close()
@@ -192,6 +197,7 @@ def segmentation(im):
     _, ndvi = cv2.threshold(ndvi, 0.25, 1, cv2.THRESH_BINARY)
     # convert it into BGR
     ndvi = cv2.convertScaleAbs(ndvi, alpha = 255)
+    # fill in the holes of the mask
     ndvi = fill(ndvi)
 
     # NDWI
@@ -207,6 +213,7 @@ def segmentation(im):
     _, ndwi = cv2.threshold(ndwi, 0.01, 1, cv2.THRESH_BINARY)
     # convert it into BGR
     ndwi = cv2.convertScaleAbs(ndwi, alpha = 255)
+    # fill in the holes of the mask
     ndwi = fill(ndwi)
 
     # WHITE
@@ -223,6 +230,7 @@ def segmentation(im):
     whiteMask = cv2.GaussianBlur(white, (7, 7), 0)
     # increase the definition again
     _, whiteMask = cv2.threshold(whiteMask, 64, 255, cv2.THRESH_BINARY)
+    # fill in the holes of the mask
     whiteMask = fill(whiteMask)
 
     # LAND
@@ -256,14 +264,14 @@ def segmentation(im):
     veget = colourise(veget, 0, 255, 0)
     # rest -> red
     other = colourise(other, 255, 0, 0)
-    # overlay all the masks
+    # overlay and merge all the masks
     res = cv2.bitwise_or(white, water, mask = mk)
     res = cv2.bitwise_or(res, veget, mask = mk)
     res = cv2.bitwise_or(res, other, mask = mk)
 
     return res
 
-def isRelevant(im):
+def evaluate(im):
     # split the image into the 3 colour channels
     b, g, r = cv2.split(im)
 
@@ -272,23 +280,18 @@ def isRelevant(im):
     
     # count the number of green pixels, excluding the white pixels
     greenPixels = len(np.where((g != b) & (g != r))[0])
-    
     # count the number of red pixels, excluding the white pixels
     redPixels = len(np.where((r != b) & (r != g))[0])
 
     # calculate the percentage of green pixels
     percentageGreen = greenPixels / totalPixels * 100
-
-    # calculate the percentage of green pixels
+    # calculate the percentage of red pixels
     percentageRed = redPixels / totalPixels * 100
 
-    # calculate the score of the image
-    score = (20 * percentageGreen) + (2 * percentageRed)
+    # calculate the score of the image [score = 10g% + r%]
+    score = (10 * percentageGreen) + percentageRed
 
-    print("Score:", score)
-    print("Relevant" if (score > 15.0) else "Not Relevant")
-
-    return score > 5.0
+    return score
 
 def convertToExif(angle):
     # get the sign
@@ -296,16 +299,14 @@ def convertToExif(angle):
 
     # get the degrees
     degrees = int(angle)
-
+  
     # keep the decimal part and multiply by 60
     angle = (angle - degrees) * 60
-
     # get the minutes
     minutes = int(angle)
-
+  
     # keep the decimal part and multiply by 60
     angle = (angle - minutes) * 60
-
     # get the seconds
     seconds = int(angle)
 
@@ -332,30 +333,32 @@ def log(msg):
     logfile.flush()
     os.fsync(logfile)
 
-def cropCircle(im):
-    # get the size of the image
-    height, width, _ = im.shape
-
-    # make a copy of the image. "image" will stay intact, "im" will be manupulated to extract the mask
-    image = im
+def cropCircle(scaledIm, im, scalingFactor):
+    # get the size of the scaled image
+    height, width, _ = scaledIm.shape
     
     # get the round mask of the window
-    mk = mask(im)
+    mk = mask(scaledIm)
 
-    # find contours
+    # find contours in the image
     contours, _ = cv2.findContours(mk, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     for contour in contours: # for each contour...
         # find a circle that fits the contour of the frame of the window
-        (xCenter, yCenter), radius = cv2.minEnclosingCircle(contour)
+        (xCentre, yCentre), radius = cv2.minEnclosingCircle(contour)
         # if the circle is the right size (1/4 height < radius < 2/3 height)
         if ((radius > (min(height, width) / 4)) and (radius < (min(height, width) / 1.5))):
+            # upscale the circle according to the size of the original image
+            radius /= scalingFactor
+            xCentre /= scalingFactor
+            yCentre /= scalingFactor
+            
             # calculate the size of the circle
             size = (2 * int(radius), 2 * int(radius))
 
             # crop the image to fit the circle that has been found
-            image = cv2.getRectSubPix(image, size, (int(xCenter + 5), int(yCenter)))
+            im = cv2.getRectSubPix(im, size, (int(xCentre + 5), int(yCentre)))
             break
-    return image
+    return im
 
 def colourise(im, r, g, b):
     # turns a single channel black and white image into a 3 channel BGR image of a given colour
