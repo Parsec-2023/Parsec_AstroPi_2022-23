@@ -19,8 +19,14 @@ sense = SenseHat()
 # get parent folder
 baseFolder = Path(__file__).parent.resolve()
 
+# initialise the path to the folder that will contain the pictures
+picsFolder = str(baseFolder) + "/Pictures"
+# and create it if it does not exist
+if (not os.path.exists(picsFolder)):
+    os.makedirs(picsFolder)
+
 # open log file or create it if it does not exist
-logfile = open(baseFolder / "log.txt", "a", encoding = "utf-8")
+logfile = open(str(baseFolder / "log.txt"), "a", encoding = "utf-8")
 
 def main():
     # csv file header
@@ -49,9 +55,9 @@ def main():
 
     # open csv file or create it if it does not exist
     try:
-        datafile = open(baseFolder / "data.csv", "r+", encoding = "utf-8")
+        datafile = open(str(baseFolder / "data.csv"), "r+", encoding = "utf-8")
     except:
-        datafile = open(baseFolder / "data.csv", "a+", encoding = "utf-8")
+        datafile = open(str(baseFolder / "data.csv"), "a+", encoding = "utf-8")
         log("File \"data.csv\" not found. New copy created")
 
     datawriter = csv.writer(datafile)
@@ -74,8 +80,15 @@ def main():
     now = datetime.now()
     picTime = datetime.now()
     
-    # picture counter
-    n = 0
+    # picture counters
+    n = 0 # total number of cycles
+    p = 0 # number of pictures taken
+
+    # initialise the size of the Pictures folder (...<baseFolder>/Pictures)
+    picFolderSize = 0
+
+    # set the initial interval for taking pictures to 5 seconds
+    interval = 5
 
     # run the loop for 2 hours and 55 minutes after start time
     while (now < (startTime + timedelta(hours = 2, minutes = 55))):
@@ -83,13 +96,16 @@ def main():
         #-start counting the time
         s = datetime.now()
 
-        # take a picture and save data every >=15 seconds
-        if (now >= (picTime + timedelta(seconds = 15))):
+        # take a picture and save data every 'interval' seconds, if interval is bigger than 5
+        # (we have calculated that if we take a picture every 5 seconds, the data limit of 3GB should not be exceeded)
+        if (now >= (picTime + timedelta(seconds = (interval if (interval >= 5) else 5)))):
             # if it is nighttime, do not take the picture
             if (ISS.at(load.timescale().now()).is_sunlit(ephemeris)):
                 try:
-                    # set picture path
-                    picPath = str(baseFolder) + "/Pictures/" + "image_" + str(n) + ".jpg"
+                    # temporary picture path
+                    tmpPicPath = picsFolder + "/tmpImage.jpg"
+                    # set the path where the final image will be saved
+                    picPath = picsFolder + "/image_" + str(n) + ".jpg"
 
                     # locate the ISS
                     altitude, latitude, longitude = getISSPos()
@@ -105,11 +121,11 @@ def main():
                     camera.exif_tags['GPS.GPSLongitude'] = exifLongitude
                     camera.exif_tags['GPS.GPSLongitudeRef'] = ("W" if west else "E")
 
-                    # take a picture at full resolution
-                    camera.capture(picPath)
+                    # take a picture at full resolution and save it as temporary
+                    camera.capture(tmpPicPath)
 
                     # open the picture as an OpenCV image
-                    image = cv2.imread(picPath)
+                    image = cv2.imread(tmpPicPath)
 
                     # scale down the image to make the following operations faster
                     scalingFactor = 0.5
@@ -121,11 +137,27 @@ def main():
                     # if the picture is relevant to our research (there is enough land)
                     score = evaluate(segmented)
                     if (score >= 2.5):
-                        # crop the image to the window of the ISS to save storage space
+                        # crop the original image to the window of the ISS to save storage space
                         image = cropCircle(scaledImage, image, scalingFactor)
 
-                        # save the cropped image
+                        # save the cropped image with its final name
                         cv2.imwrite(picPath, image)
+
+                        # increment the number of pictures
+                        p += 1
+                        # increment the size of the Pictures folder
+                        picFolderSize += os.path.getsize(picPath)
+
+                        # update the minimum time interval for taking pictures according to the remaining time and remaining storage space:
+                        # the remaining space is the total space (we went for 2.975GB to leave some wiggle room for safety) minus the current space taken
+                        remainingSpace = 2975000000 - picFolderSize
+                        # the remaining time is the initial time plus almost three hours minus the current time
+                        remainingTime = (startTime + timedelta(hours = 2, minutes = 55) - datetime.now()).seconds
+                        # given 'remainingSpace' bytes left and 'remainingTime' seconds to save an 'averageSpace' amount of bytes every 'interval' seconds, the following proportion applies:
+                        # interval : averageSpace = remainingTime : remainingSpace
+                        # therefore -> interval = averageSpace * remainingTime / remainingSpace
+                        # the average space of one picture is calculated by dividing the total size of the Pictures folder by the number of pictures it contains
+                        interval = int((picFolderSize / p) * remainingTime / remainingSpace)
 
                         # log the coordinates where the pic was taken
                         log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
