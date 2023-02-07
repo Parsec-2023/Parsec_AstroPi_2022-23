@@ -100,7 +100,7 @@ def main():
         # (we have calculated that if we take a picture every 5 seconds, the data limit of 3GB should not be exceeded)
         if (now >= (picTime + timedelta(seconds = (interval if (interval >= 5) else 5)))):
             # if it is nighttime, do not take the picture
-            if (ISS.at(load.timescale().now()).is_sunlit(ephemeris)):
+            if (True): #ISS.at(load.timescale().now()).is_sunlit(ephemeris)
                 try:
                     # temporary picture path
                     tmpPicPath = picsFolder + "/tmpImage.jpg"
@@ -115,33 +115,41 @@ def main():
                     west, exifLongitude = convertToExif(longitude)
 
                     # save the location in the metadata of the picture
-                    camera.exif_tags['GPS.GPSAltitude'] = altitude
+                    camera.exif_tags['GPS.GPSAltitude'] = str(altitude)
                     camera.exif_tags['GPS.GPSLatitude'] = exifLatitude
                     camera.exif_tags['GPS.GPSLatitudeRef'] = ("S" if south else "N")
                     camera.exif_tags['GPS.GPSLongitude'] = exifLongitude
                     camera.exif_tags['GPS.GPSLongitudeRef'] = ("W" if west else "E")
 
+                    print("Exif data updated")
                     # take a picture at full resolution and save it as temporary
                     camera.capture(tmpPicPath)
-
+                    print("Tmp picture saved at: " + tmpPicPath)
+                    
                     # open the picture as an OpenCV image
                     image = cv2.imread(tmpPicPath)
+                    print("Tmp picture opened")
 
                     # scale down the image to make the following operations faster
                     scalingFactor = 0.5
                     scaledImage = cv2.resize(image, None, fx = scalingFactor, fy = scalingFactor)
+                    print("Picture resized")
 
                     # perform image segmentation on the scaled picture
                     segmented = segmentation(scaledImage)
+                    print("Picture segmented")
 
-                    # if the picture is relevant to our research (there is enough land)
+                    # if the picture is relevant to our research (there is enough land)...
                     score = evaluate(segmented)
+                    print("Score: " + str(score))
                     if (score >= 2.5):
                         # crop the original image to the window of the ISS to save storage space
                         image = cropCircle(scaledImage, image, scalingFactor)
+                        print("Picture cropped")
 
                         # save the cropped image with its final name
                         cv2.imwrite(picPath, image)
+                        print("Picture saved at: " + picPath)
 
                         # increment the number of pictures
                         p += 1
@@ -161,16 +169,20 @@ def main():
 
                         # log the coordinates where the pic was taken
                         log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
+                        print("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
                     else:
                         log("Picture not taken - Not relevant")
-
+                        print("Picture not taken - Not relevant")
+                    
                     #-print time taken
                     print(datetime.now() - s)
-
+                    
                 except Exception as e:
                     log("Error taking a picture: " + str(e))
+                    print("Error taking a picture: " + str(e))
             else:
                 log("Picture not taken - ISS not sunlit")
+                print("Picture not taken - ISS not sunlit")
 
             # write data to data.csv and log.txt, and make sure the changes are saved
             try:
@@ -187,6 +199,16 @@ def main():
 
         # update the current time
         now = datetime.now()
+
+        # calculate current size of the base folder
+        st = os.statvfs(baseFolder)
+        baseFolderSize = (st.f_frsize * st.f_blocks)
+        # if the size exceeds 2.99GB, stop the program
+        if (baseFolderSize >= 2990000000):
+            elapsedTime = str(int((datetime.now() - startTime).seconds))
+            log("Program aborted after " + elapsedTime + "s: size limit exceeded")
+            print("Program aborted after " + elapsedTime + "s: size limit exceeded")
+            break
 
     # close camera and files
     camera.close()
@@ -311,9 +333,9 @@ def evaluate(im):
     totalPixels = im.shape[0] * im.shape[1]
     
     # count the number of green pixels, excluding the white pixels
-    greenPixels = len(np.where((g != b) & (g != r))[0])
+    greenPixels = np.sum((g != b) & (g != r))
     # count the number of red pixels, excluding the white pixels
-    redPixels = len(np.where((r != b) & (r != g))[0])
+    redPixels = np.sum((r != b) & (r != g))
 
     # calculate the percentage of green pixels
     percentageGreen = greenPixels / totalPixels * 100
@@ -343,7 +365,7 @@ def convertToExif(angle):
     seconds = int(angle)
 
     # format the angle as a string
-    exifAngle = f"{degrees:.0f}/1,{minutes:.0f}/1,{seconds*1000000:.0f}/1000000"
+    exifAngle = f"{degrees:.0f}/1,{minutes:.0f}/1,{seconds*1000:.0f}/1000"
     
     return (sign < 0), exifAngle
 
