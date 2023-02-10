@@ -1,4 +1,6 @@
 import numpy as np
+from PIL import Image
+from PIL.ExifTags import GPSTAGS, TAGS
 from orbit import ISS, ephemeris
 from skyfield.api import load
 from pathlib import Path
@@ -18,12 +20,6 @@ sense = SenseHat()
 
 # get parent folder
 baseFolder = Path(__file__).parent.resolve()
-
-# initialise the path to the folder that will contain the pictures
-picsFolder = str(baseFolder) + "/Pictures"
-# and create it if it does not exist
-if (not os.path.exists(picsFolder)):
-    os.makedirs(picsFolder)
 
 # open log file or create it if it does not exist
 logfile = open(str(baseFolder / "log.txt"), "a", encoding = "utf-8")
@@ -53,6 +49,15 @@ def main():
         "Humidity[%]",
     ]
 
+    # initialise the path to the folder that will contain the pictures
+    picsFolder = str(baseFolder) + "/Pictures"
+    try:
+        # and create it if it does not exist
+        if (not os.path.exists(picsFolder)):
+            os.makedirs(picsFolder)
+    except Exception as e:
+        log("FATAL ERROR - unable to find or create Pictures folder: " + str(e))
+
     # open csv file or create it if it does not exist
     try:
         datafile = open(str(baseFolder / "data.csv"), "r+", encoding = "utf-8")
@@ -76,11 +81,11 @@ def main():
     except Exception as e:
         log("Error initialising camera: " + str(e))
 
-    # reset current time and picture timer
+    # initialise time and picture timer
     now = datetime.now()
     picTime = datetime.now()
     
-    # picture counters
+    # initialise picture counters
     n = 0 # total number of cycles
     p = 0 # number of pictures taken
 
@@ -115,17 +120,16 @@ def main():
                     west, exifLongitude = convertToExif(longitude)
 
                     # save the location in the metadata of the picture
-                    camera.exif_tags['GPS.GPSAltitude'] = str(altitude)
+                    camera.exif_tags['GPS.GPSAltitude'] = f"{altitude * 1000000:.0f}/1000000"
                     camera.exif_tags['GPS.GPSLatitude'] = exifLatitude
                     camera.exif_tags['GPS.GPSLatitudeRef'] = ("S" if south else "N")
                     camera.exif_tags['GPS.GPSLongitude'] = exifLongitude
                     camera.exif_tags['GPS.GPSLongitudeRef'] = ("W" if west else "E")
 
-                    print("Exif data updated")
                     # take a picture at full resolution and save it as temporary
                     camera.capture(tmpPicPath)
                     print("Tmp picture saved at: " + tmpPicPath)
-                    
+
                     # open the picture as an OpenCV image
                     image = cv2.imread(tmpPicPath)
                     print("Tmp picture opened")
@@ -142,7 +146,7 @@ def main():
                     # if the picture is relevant to our research (there is enough land)...
                     score = evaluate(segmented)
                     print("Score: " + str(score))
-                    if (score >= 2.5):
+                    if (True): #score >= 2.5
                         # crop the original image to the window of the ISS to save storage space
                         image = cropCircle(scaledImage, image, scalingFactor)
                         print("Picture cropped")
@@ -150,6 +154,19 @@ def main():
                         # save the cropped image with its final name
                         cv2.imwrite(picPath, image)
                         print("Picture saved at: " + picPath)
+
+                        # save the exif data to the final image
+                        try:
+                            # open the temporary image with PIL
+                            tmpImage = Image.open(tmpPicPath)
+                            # get its exif data
+                            exifData = tmpImage.info["exif"]
+                            # open the cropped image with PIL
+                            finalImage = Image.open(picPath)
+                            # save the exif data to the final image
+                            finalImage.save(picPath, exif = exifData)
+                        except Exception as e:
+                            log("Unable to save exit data: " + str(e))
 
                         # increment the number of pictures
                         p += 1
@@ -169,20 +186,16 @@ def main():
 
                         # log the coordinates where the pic was taken
                         log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
-                        print("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
                     else:
                         log("Picture not taken - Not relevant")
-                        print("Picture not taken - Not relevant")
                     
-                    #-print time taken
-                    print(datetime.now() - s)
+                    # print time taken
+                    print("Time taken: " + str(datetime.now() - s))
                     
                 except Exception as e:
                     log("Error taking a picture: " + str(e))
-                    print("Error taking a picture: " + str(e))
             else:
                 log("Picture not taken - ISS not sunlit")
-                print("Picture not taken - ISS not sunlit")
 
             # write data to data.csv and log.txt, and make sure the changes are saved
             try:
@@ -200,14 +213,10 @@ def main():
         # update the current time
         now = datetime.now()
 
-        # calculate current size of the base folder
-        st = os.statvfs(baseFolder)
-        baseFolderSize = (st.f_frsize * st.f_blocks)
-        # if the size exceeds 2.99GB, stop the program
-        if (baseFolderSize >= 2990000000):
+        # if the size of the folder exceeds 2.75GB, stop the program
+        if (picFolderSize >= 2750000000):
             elapsedTime = str(int((datetime.now() - startTime).seconds))
             log("Program aborted after " + elapsedTime + "s: size limit exceeded")
-            print("Program aborted after " + elapsedTime + "s: size limit exceeded")
             break
 
     # close camera and files
@@ -351,6 +360,9 @@ def convertToExif(angle):
     # get the sign
     sign = angle
 
+    # make the angle positive
+    angle = abs(angle)
+
     # get the degrees
     degrees = int(angle)
   
@@ -383,9 +395,13 @@ def getTime():
 
 def log(msg):
     # appends a line that indicates the current time and date and the message msg to the file f 
-    logfile.write("[" + getDate() + "," + getTime() + "] " + msg + "\n")
+    message = ("[" + getDate() + "," + getTime() + "] " + msg + "\n")
+    logfile.write(message)
     logfile.flush()
     os.fsync(logfile)
+
+    # print the message to console
+    print(message)
 
 def cropCircle(scaledIm, im, scalingFactor):
     # get the size of the scaled image
