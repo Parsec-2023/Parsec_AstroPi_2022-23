@@ -92,20 +92,20 @@ def main():
     # initialise the size of the Pictures folder (...<baseFolder>/Pictures)
     picFolderSize = 0
 
-    # set the initial interval for taking pictures to 5 seconds
-    interval = 5
+    # set the initial interval for taking pictures to 3 seconds
+    interval = 3
 
     # run the loop for 2 hours and 55 minutes after start time
-    while (now < (startTime + timedelta(hours = 2, minutes = 55))):
+    while (now < (startTime + timedelta(hours = 2, minutes = 57, seconds = 30))):
 
-        #-start counting the time
-        s = datetime.now()
+        # start counting the time for each picture
+        picDeltaTime = datetime.now()
 
-        # take a picture and save data every 'interval' seconds, if interval is bigger than 5
-        # (we have calculated that if we take a picture every 5 seconds, the data limit of 3GB should not be exceeded)
-        if (now >= (picTime + timedelta(seconds = (interval if (interval >= 5) else 5)))):
+        # take a picture and save data every 'interval' seconds, if interval is bigger than 3
+        # (we have calculated that if we take a picture every 3 seconds, the data limit of 3GB should not be exceeded)
+        if (now >= (picTime + timedelta(seconds = (int(interval) if (interval >= 3) else 3)))):
             # if it is nighttime, do not take the picture
-            if (True): #ISS.at(load.timescale().now()).is_sunlit(ephemeris)
+            if (ISS.at(load.timescale().now()).is_sunlit(ephemeris)):
                 try:
                     # temporary picture path
                     tmpPicPath = picsFolder + "/tmpImage.jpg"
@@ -146,7 +146,7 @@ def main():
                     # if the picture is relevant to our research (there is enough land)...
                     score = evaluate(segmented)
                     print("Score: " + str(score))
-                    if (True): #score >= 2.5
+                    if (score >= 2.5):
                         # crop the original image to the window of the ISS to save storage space
                         image = cropCircle(scaledImage, image, scalingFactor)
                         print("Picture cropped")
@@ -177,20 +177,23 @@ def main():
                         # the remaining space is the total space (we went for 2.975GB to leave some wiggle room for safety) minus the current space taken
                         remainingSpace = 2975000000 - picFolderSize
                         # the remaining time is the initial time plus almost three hours minus the current time
-                        remainingTime = (startTime + timedelta(hours = 2, minutes = 55) - datetime.now()).seconds
+                        remainingTime = (startTime + timedelta(hours = 2, minutes = 57, seconds = 30) - datetime.now()).seconds
                         # given 'remainingSpace' bytes left and 'remainingTime' seconds to save an 'averageSpace' amount of bytes every 'interval' seconds, the following proportion applies:
                         # interval : averageSpace = remainingTime : remainingSpace
                         # therefore -> interval = averageSpace * remainingTime / remainingSpace
                         # the average space of one picture is calculated by dividing the total size of the Pictures folder by the number of pictures it contains
-                        interval = int((picFolderSize / p) * remainingTime / remainingSpace)
+                        interval = ((picFolderSize / p) * remainingTime / remainingSpace)
 
                         # log the coordinates where the pic was taken
                         log("Picture " + "\"image_" + str(n) + ".jpg\"" + " taken at: (" + str(latitude) + ", " + str(longitude) + ") [score: " + str(round(score, 3)) + "]")
+
+                        # log the new time interval
+                        log("Time interval: " + str(interval))
                     else:
                         log("Picture not taken - Not relevant")
                     
                     # print time taken
-                    print("Time taken: " + str(datetime.now() - s))
+                    log("Time taken: " + str(datetime.now() - picDeltaTime))
                     
                 except Exception as e:
                     log("Error taking a picture: " + str(e))
@@ -215,9 +218,14 @@ def main():
 
         # if the size of the folder exceeds 2.75GB, stop the program
         if (picFolderSize >= 2750000000):
-            elapsedTime = str(int((datetime.now() - startTime).seconds))
+            elapsedTime = str(int((now - startTime).seconds))
             log("Program aborted after " + elapsedTime + "s: size limit exceeded")
             break
+    
+    # log the final time in case the program ended correctly after 2h:55m
+    totalTime = datetime.now() - startTime
+    if (totalTime >= timedelta(hours = 2, minutes = 57, seconds = 30)):
+        log("Program successfully terminated after " + str(totalTime.seconds) + "s")
 
     # close camera and files
     camera.close()
@@ -428,6 +436,9 @@ def cropCircle(scaledIm, im, scalingFactor):
             # crop the image to fit the circle that has been found
             im = cv2.getRectSubPix(im, size, (int(xCentre + 5), int(yCentre)))
             break
+    # return the original image object
+    # if it has been cropped, the object itself is the cropped image
+    # otherwise, if it has not been cropped, the image is the same
     return im
 
 def colourise(im, r, g, b):
