@@ -112,7 +112,7 @@ def main():
                     image = cv2.imread(picPath)
 
                     # scale down the image to make the following operations faster
-                    scalingFactor = 0.5
+                    scalingFactor = 0.4
                     scaledImage = cv2.resize(image, None, fx = scalingFactor, fy = scalingFactor)
 
                     # perform image segmentation on the scaled picture
