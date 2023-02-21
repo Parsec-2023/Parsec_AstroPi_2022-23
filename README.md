@@ -50,4 +50,7 @@ Our program is structured as follows:
 				$averagesize = \frac{picfoldersize}{picsnumber}$
 				$\implies interval = \frac{ \frac{picfoldersize}{picsnumber}\cdot remainingtime}{remainingspace} = \frac{picfoldersize\cdot remainingtime}{picsnumber \cdot remainingspace}$
 				Where $interval$, as previously indicated, is the amount of seconds to wait before taking the next picture in order to not exceed the $remainingspace$
-		- The *Sense Hat* data is retrieved and saved 
+		- The *Sense Hat* data is retrieved and saved;
+	- The current time `now` is updated;
+	- The total size of the picture folder is checked to make sure it does not exceed 2.75GB. If it does, the program is terminated;
+- Close the camera, the *csv* file and the *log* file
