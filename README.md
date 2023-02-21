@@ -26,9 +26,9 @@ Our program is structured as follows:
 - Start a *while* loop that cycles continuously for 2 hours, 57 minutes and 30 seconds *(2:57:30)* `now < (startTime + timedelta(hours = 2, minutes = 57, seconds = 30))`;
 	- Enter an if statement every 3 seconds or more, depending on how much free memory out of the 3GB is left and how much time remains. This time interval will be calculated at the end of the loop;
 		- Check if the ISS is over a sunlit area (`ISS.at(load.timescale().now()).is_sunlit(ephemeris)`): if not, only data will be collected and no picture will be taken;
-		- Set EXIF data of the next picture according to the current location of the ISS;
+		- Set **EXIF** data of the next picture according to the current location of the ISS;
 		- Take a picture with the *PiCamera*, saving it to a temporary path, overwriting the old one;
-		- Open this picture as an *OpenCV* image and scale it down in order to make the following operations faster;
+		- Open this picture as an *OpenCV* image and **scale** it down in order to make the following operations faster;
 		- Use a computer vision algorithm that we have developed (which is implemented in the function `segmentation(image)` to get a **segmented** image from the picture that has just been taken;
 		- This allows us to choose whether this picture should be permanently saved, by calculating a score that is based on the percentage of green and red pixels (respectively representing vegetation and generic landmass) in the segmented image;
 			- If the score is high enough, the picture is **cropped** around the edge of the window of the ISS to save as much storage space as possible. This operation is performed by another *cv* algorithm - of which we are quite proud - that isolates the bright circle of the window, finds the border, and crops the image accordingly;
@@ -39,7 +39,7 @@ Our program is structured as follows:
 				$remainingspace = maxspace - currentspace = 2975000000 - picfoldersize$
 				> - The remaining time is the time the program is expected to end minus the current time:
 				$remainingtime = endtime - now = starttime + programtime - currenttime$
-				> - Given the space and the time, it is possible to estimate a maximum rate at which adding bytes to the occupied space without exceeding the maximum space:
+				> - Given the space and the time, it is possible to estimate a maximum rate at which bytes can be added to the current space without exceeding the maximum space:
 				$v = \frac{s}{t} \implies rate = \frac{remainingspace}{remainingtime}$
 				> - The aforementioned rate has to be equal to the rate of the number of *n* pictures taken in the remaining time, seen as a sum of *n* intervals:
 				$remainingspace = n\cdot averagesize$; $remainingtime = n\cdot interval$
@@ -50,7 +50,11 @@ Our program is structured as follows:
 				$averagesize = \frac{picfoldersize}{picsnumber}$
 				$\implies interval = \frac{ \frac{picfoldersize}{picsnumber}\cdot remainingtime}{remainingspace} = \frac{picfoldersize\cdot remainingtime}{picsnumber \cdot remainingspace}$
 				Where $interval$, as previously indicated, is the amount of seconds to wait before taking the next picture in order to not exceed the $remainingspace$
-		- The *Sense Hat* data is retrieved and saved;
+		- The *Sense Hat* data is retrieved with `getData()` and saved to the *csv* file;
 	- The current time `now` is updated;
 	- The total size of the picture folder is checked to make sure it does not exceed 2.75GB. If it does, the program is terminated;
-- Close the camera, the *csv* file and the *log* file
+- Close the camera, the *csv* file and the *log* file.
+
+```mermaid
+graph  TD;  A-->B;  A-->C;  B-->D;  C-->D;
+```
