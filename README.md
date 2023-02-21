@@ -9,8 +9,17 @@ Members: Daniele Nicolia, Davide Pascu, Matteo Saporiti, Leonardo Simonetti, Fed
 ## Abstract
 Our project aims to determine whether and how much drainage **basins**, rivers, **lakes**, glaciers, and coasts have changed in the last decades due to **climate change**. The parameters we are going to focus on are the area covered by water, the shape of the water stream, and the amount of water provided to the surrounding land: the latter will be estimated considering vegetation health (which depends on the quantity of water received) and will allow us to understand how much water the stream supplies to the surrounding environment and consequently how the evolution of the water stream modifies the environment itself. The final destination of our research is to use the collected data to study possible links with climate change and **predict** how the observed sites will change in the future, considering possible effects on the landscape and on the local population.
 
+Our program makes use of computer vision techniques combined with **NDVI** and **NDWI** to collect as many useful images as possible during the three-hour period on the ISS.
+
+## Future Plans for Phase 4
+Our plan after Phase 3 (assuming we get flight status) is to use the pictures that we collect on the ISS and all of the satellite images 
+
 # The software
 The main function of our program is to take pictures of the Earth's surface as frequently as possible, only saving to memory the ones that are relevant. We have made extensive use of try-except statements to make sure that the program will not stop before it is needed, and we have implemented an intricated logging system that, in case anything goes wrong, will tell us the cause of the problem. We tried to follow a good coding practice, writing the code as readable as possible, and especially ensuring to keep a certain level of optimisation and safety during runtime.
+The most significant features of our program are:
+ - **NDVI** and **NDWI** calculation.
+ - Algorithmic **image segmentation** to detect vegetation and land in the image and only save the pictures that contain land, excluding those that are all ocean or clouds. ***Note**: we initially wanted to use machine learning to perform image segmentation, we had also implemented a **U-Net** convolutional neural network, but in order to train it we would have had to make our own dataset of segmented images, which meant painting hundreds or **thousands** of NIR satellite images by hand. We figured it would take us much less time to make an algorithm that does the same job, which is what we did, and it works just fine.*
+ - Image cropping to save storage.
 
 ## Structure
 Our program is structured as follows:
@@ -100,15 +109,22 @@ The most important functions are:
  - Image evaluation: *evaluate(im)*
  - Conversion of an angle to EXIF: *convertToExif(angle)*
  - Appending a message to the log file: *log(msg)*
- - Cropping the picture to match the circular frame of the window: cropCircle(scaledIm, im, scalingFactor)
-
+ - Cropping the picture to match the circular frame of the window: *cropCircle(scaledIm, im, scalingFactor)*
+ - Turning a grayscale mask into a coloured three channel image: *colourise(im, r, g, b)*
+ - Getting the mask of the window of the ISS: *mask(im)*
+ - Filling in the holes inside a mask: *fill(im)*
+ - Changing the contrast of the image: *contrast(im, k)*
+ - Getting the current position of the ISS: *getISSPos()*
+ - Getting data from the *SenseHat*: *getData()*
+ - Others: formatTime(), getDate(), getTime(),
+***
 **Image segmentation**  
 >*segmentation(im)*  
 Paramaters:
 > - *im*: OpenCV image
 > - *return*: OpenCV image
 
-Given an OpenCV image, this function uses a series of image manipulations to return another OpenCV image that is the segmented version of the one that is passed as parameter. The segmentation colour classes are:
+Given an OpenCV image, this function uses a series of image manipulations to return another OpenCV image that is the segmented version of the one that is passed as parameter. It uses NDVI and NDVI to better identify and distinguish the differences in colour inside the image. The segmentation colour classes are:
 - Green RGB(0, 255, 0) = vegetation
 - Blue RGB(0, 0, 255) = water
 - White RGB(255, 255, 255) = clouds and glaciers
@@ -124,5 +140,44 @@ subgraph segmentation
 m11[Get mask of the window]-->m12(Remove the parts of the image outside the mask)-->m13(Separate the colour channels)
 m13-->ndvi(Generate NDVI mask)-->ndwi(Generate NDWI mask)-->white(Generate mask of the white areas)-->land(Generate mask of the rest of the land)-->m14(Intersect the masks)
 m14-->m15(Colourise the masks)-->m16(Overlay all of the masks together into a single image)
+end
+```
+***
+**Image evaluation**  
+>*evaluate(im)*  
+Paramaters:
+> - *im*: OpenCV image
+> - *return*: float
+
+Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:
+$score = 10\cdot greenpercentage + redpercentage$
+
+```mermaid
+flowchart  TD;
+subgraph evaluate
+m21(Split the image into three colour channels)-->m22(Get total number of pixels)
+m22-->m23(Count the green pixels)-->pg(Calculate green percentage)-->m25
+m22-->m24(Count the red pixels)-->pr(Calculate red percentage)-->m25
+m25(Calculate score)
+end
+```
+
+***
+**Image evaluation**  
+>*evaluate(im)*  
+Paramaters:
+> - *im*: OpenCV image
+> - *return*: float
+
+Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:
+$score = 10\cdot greenpercentage + redpercentage$
+
+```mermaid
+flowchart  TD;
+subgraph evaluate
+m21(Split the image into three colour channels)-->m22(Get total number of pixels)
+m22-->m23(Count the green pixels)-->pg(Calculate green percentage)-->m25
+m22-->m24(Count the red pixels)-->pr(Calculate red percentage)-->m25
+m25(Calculate score)
 end
 ```
