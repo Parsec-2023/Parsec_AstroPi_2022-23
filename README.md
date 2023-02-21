@@ -60,12 +60,6 @@ Our program is structured as follows:
 flowchart  TD;
 S([Start])-->0(Import libraries and modules)-->1(Get start time, initialise sense hat, get parent folder, open log file)
 
-subgraph segmentation
-m11[Get mask of the window]-->m12(Remove the parts of the image outside the mask)-->m13(Separate the colour channels)
-m13-->ndvi(Generate NDVI mask)-->ndwi(Generate NDWI mask)-->white(Generate mask of the white areas)-->land(Generate mask of the rest of the land)-->m14(Intersect the masks)
-m14-->m15(Colourise the masks)-->m16(Overlay all the masks into a single image)
-end
-
 subgraph Main
 1-->d1{Does the pictures folder exist?}
 d1-->|No|c0(Create it)
@@ -97,8 +91,28 @@ p5[Crop the image]-->p6[/Save the cropped image/]-->p7[/Open the temporary image
 end
 6[/Log final time/]-->E
 end
-
-p3-->m11
-m16-->p3
 E([End])
+```
+***
+## Functions
+The most important functions are:
+ - Image segmentation: *segmentation(im)*
+ - Image evaluation: *evaluate(im)*
+ - Conversion of an angle to EXIF: *convertToExif(angle)*
+ - Appending a message to the log file: *log(msg)*
+ - Cropping the picture to match the circular frame of the window: cropCircle(scaledIm, im, scalingFactor)
+
+**Image segmentation**
+*segmentation(im)*
+Paramaters:
+ - *im*: OpenCV image
+Given an OpenCV image as 
+
+```mermaid
+flowchart  TD;
+subgraph segmentation
+m11[Get mask of the window]-->m12(Remove the parts of the image outside the mask)-->m13(Separate the colour channels)
+m13-->ndvi(Generate NDVI mask)-->ndwi(Generate NDWI mask)-->white(Generate mask of the white areas)-->land(Generate mask of the rest of the land)-->m14(Intersect the masks)
+m14-->m15(Colourise the masks)-->m16(Overlay all of the masks together into a single image)
+end
 ```
