@@ -68,16 +68,27 @@ c0-->d2
 d2-->|No|c1(Create it)
 d2-->|Yes|d3{Is the csv file empty?}
 c1-->d3
-d3-->|Yes|c2(Write the header)
+d3-->|Yes|c2[/Write the header/]
 d3-->|No|4(Initialise the camera)
 c2-->4-->5(Initialise valiables)
 5-->d4{Have 3 hours passed?}
-d4-->|Yes|6(Log final time)-->E([End])
-d5{Is it daytime?}
-d4-->|Not yet|d5
-end
-
-
+d4-->|Yes|6
 subgraph While loop
+d4-->|Not yet|d4.5{Have 'interval' seconds passed since the last picture was taken?}
+d4.5-->|Not yet|d4
+d4.5-->|Yes|d5
+d5{Is it daytime?}
+d5-->|No|7[/Save csv data/]-->8(Reset loop timer variables)-->9
+9(Update current time)-->d6{Maximum space exceeded?}
+d6-->|Yes|6
+d6-->|No|d4
+d5-->|Yes|l(Find the current location of the ISS)-->l1(Convert it to EXIF)-->l2(Set it as EXIF data of the PiCamera)-->p0
+p0[/Take a picture and save it as temporary/]
+p0-->p1[/Open it as cv2 Image/]-->p2[Scale it down]-->p3[Image segmentation]-->p4[Calculate the score]-->d7{Is the score >2.5?}
+d7-->|No|7
+d7-->|Yes|p5
+p5[Crop the image]-->p6[/Save the cropped image/]-->p7[/Open the temporary image as PIL Image and get its EXIF data/]-->p8[/Open the cropped image and save the EXIF data/]-->8(Increment number of pictures and calculate new interval)
+end
+6[/Log final time/]-->E([End])
 end
 ```
