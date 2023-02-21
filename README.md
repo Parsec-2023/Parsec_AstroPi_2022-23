@@ -7,9 +7,9 @@ Members: Daniele Nicolia, Davide Pascu, Matteo Saporiti, Leonardo Simonetti, Fed
 ***
 # Our project
 ## Abstract
-Our project aims to determine whether and how much drainage **basins**, rivers, **lakes**, glaciers, and coasts have changed in the last decades due to **climate change**. The parameters we are going to focus on are the area covered by water, the shape of the water stream, and the amount of water provided to the surrounding land: the latter will be estimated considering vegetation health (which depends on the quantity of water received) and will allow us to understand how much water the stream supplies to the surrounding environment and consequently how the evolution of the water stream modifies the environment itself. The final destination of our research is to use the collected data to study possible links with climate change and **predict** how the observed sites will change in the future, considering possible effects on the landscape and on the local population.
+Our project aims to determine whether and how much drainage **basins**, rivers, **lakes**, glaciers, and coasts have changed in the last decades due to **climate change**. The parameters we are going to focus on are the area covered by water, the shape of the water stream, and eventually the amount of water provided to the surrounding land; this last aspect, which will be estimated considering vegetation health (that is an effect of the quantity of water received) will allow us to understand also how much water the stream supplies to the surrounding environment and consequently how the evolution of the water stream modifies the environment itself. The final destination of our research is to use the collected data to study possible links with climate change and **predict** how the observed sites will change in the future, considering possible effects on the landscape and on the local population.
 
-Our program makes use of computer vision techniques combined with **NDVI** and **NDWI** to collect as many useful images as possible during the three-hour period on the ISS.
+Our program makes use of computer vision techniques combined with **NDVI** and **NDWI** to recognise whether the ISS is passing over a relevant landscape and save as many useful images as possible during the three-hour period on the ISS.
 
 ## Future Plans for Phase 4
 Our plan after Phase 3, ***assuming*** we get flight status, is to use the pictures that we collect on the ISS and the NIR satellite image datasets that can be found on the Internet to train a **machine learning model** capable of **predicting** the future water and vegetation **coverage** of a certain area, based on the past and current images of that area, taking into account seasonal variations and other factors.
@@ -22,18 +22,23 @@ The most significant features of our program are:
  - Image cropping to save storage.
 
 ## Structure
-Our program is structured as follows:
-- Initialise the first objects, such as the starting time of the program, the *SenseHat*; get the path of the containing folder;
+Our program is structured as follows:  
+  
+*Initialisation*
+- Initialise the first objects and variables, such as the start time of the program, the *SenseHat*, get the path of the containing folder;
 - Open the *log* file or create it if it does not exist;
-- The header of the *csv* file is defined at the beginning of the main function;
+- At the beginning of the main() function, the header of the *csv* file is defined;
 	> We will collect every parameter that the *SenseHat* is capable of, and the *csv* header will be:  
 	Date[DD/MM/YYYY],Time[UTC-24H],Altitude[m],Latitude[Deg],Longitude[Deg],Yaw[Deg],Pitch[Deg],Roll[Deg],xAcceleration[g],yAcceleration[g],zAcceleration[g],xMag[µT],yMag[µT],zMag[µT],xω[rad/s],yω[rad/s],zω[rad/s],Temperature[°C],Pressure[hPa],Humidity[%]
 - The *csv* file for saving the data collected by the *SenseHat* is opened or created if it does not exist;
 - A folder to contain the pictures, `...\Pictures`, is created if it does not exist;
 - The *csv writer* and the *PiCamera* are initialised;
-- Create some variables that will be needed later;
+- Some variables that will be needed later are created;  
+
+*Main loop*
+
 - Start a *while* loop that cycles continuously for 2 hours, 57 minutes and 30 seconds *(2:57:30)* `now < (startTime + timedelta(hours = 2, minutes = 57, seconds = 30))`;
-	- Enter an if statement every 3 seconds or more, depending on how much free memory out of the 3GB is left and how much time remains. This time interval will be calculated at the end of the loop;
+	- By an if statement, enter the routine that will take a picture and save related data every 3 seconds or more, depending on how much free memory out of the 3GB is left and how much time remains. This time interval will be calculated at the end of the loop;
 		- Check if the ISS is over a sunlit area (`ISS.at(load.timescale().now()).is_sunlit(ephemeris)`): if not, only data will be collected and no picture will be taken;
 		- Set **EXIF** data of the next picture according to the current location of the ISS;
 		- Take a picture with the *PiCamera*, saving it to a temporary path, overwriting the old one;
