@@ -1,9 +1,9 @@
 # Parsec-AstroPi
-**2022-2023**
-Team name: Parsec
-School: *[Liceo Scientifico "Leonardo da Vinci", Gallarate (VA), IT](https://goo.gl/maps/iJFNK38aVivM7PgVA)*
-Mentor: Lucia Polidori
-Members: Daniele Nicolia, Davide Pascu, Matteo Saporiti, Leonardo Simonetti, Federico Sozzi, Jad Taljabini
+**2022-2023**  
+Team name: Parsec  
+School: *[Liceo Scientifico "Leonardo da Vinci", Gallarate (VA), IT](https://goo.gl/maps/iJFNK38aVivM7PgVA)*  
+Mentor: Lucia Polidori  
+Members: Daniele Nicolia, Davide Pascu, Matteo Saporiti, Leonardo Simonetti, Federico Sozzi, Jad Taljabini  
 ***
 # Our project
 ## Abstract
@@ -12,7 +12,7 @@ Our project aims to determine whether and how much drainage **basins**, rivers, 
 Our program makes use of computer vision techniques combined with **NDVI** and **NDWI** to collect as many useful images as possible during the three-hour period on the ISS.
 
 ## Future Plans for Phase 4
-Our plan after Phase 3 (assuming we get flight status) is to use the pictures that we collect on the ISS and all of the satellite images 
+Our plan after Phase 3, ***assuming*** we get flight status, is to use the pictures that we collect on the ISS and the NIR satellite image datasets that can be found on the Internet to train a **machine learning model** capable of **predicting** the future water and vegetation **coverage** of a certain area, based on the past and current images of that area, taking into account seasonal variations and other factors.
 
 # The software
 The main function of our program is to take pictures of the Earth's surface as frequently as possible, only saving to memory the ones that are relevant. We have made extensive use of try-except statements to make sure that the program will not stop before it is needed, and we have implemented an intricated logging system that, in case anything goes wrong, will tell us the cause of the problem. We tried to follow a good coding practice, writing the code as readable as possible, and especially ensuring to keep a certain level of optimisation and safety during runtime.
