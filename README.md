@@ -122,7 +122,8 @@ The most important functions are:
 >*segmentation(im)*  
 Paramaters:
 > - *im*: OpenCV image
-> - *return*: OpenCV image
+> 
+> Returns: OpenCV image
 
 Given an OpenCV image, this function uses a series of image manipulations to return another OpenCV image that is the segmented version of the one that is passed as parameter. It uses NDVI and NDVI to better identify and distinguish the differences in colour inside the image. The segmentation colour classes are:
 - Green RGB(0, 255, 0) = vegetation
@@ -147,7 +148,8 @@ end
 >*evaluate(im)*  
 Paramaters:
 > - *im*: OpenCV image
-> - *return*: float
+> 
+>Returns: float
 
 Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:
 $score = 10\cdot greenpercentage + redpercentage$
@@ -163,13 +165,31 @@ end
 ```
 
 ***
-**Image evaluation**  
->*evaluate(im)*  
+**Conversion of an angle to EXIF**  
+>*convertToExif(angle)*  
 Paramaters:
-> - *im*: OpenCV image
-> - *return*: float
+> - *angle*: float
+> 
+>Returns: (bool, string)
 
-Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:
+This function converts the decimal angle passed as argument into an EXIF compatible string `"deg/1,min/1, sec/1000"` like in the case `12° 39' 12.365" -> "12/1,39/1,12365/1000"`. It returns True when the parameter was negative, otherwise False if positive, and the EXIF angle.
+
+```mermaid
+flowchart  TD;
+subgraph convertToExif
+m31(Save the sign of the angle and get its absolute value)-->m32(Convert the decimal angle into separated degrees, minutes and seconds)-->m33(Format the string)
+end
+```
+
+***
+**Appending a message to the log file**  
+>*log(msg)*  
+Paramaters:
+> - *msg*: string
+> 
+> Returns: void
+
+Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:: **
 $score = 10\cdot greenpercentage + redpercentage$
 
 ```mermaid
