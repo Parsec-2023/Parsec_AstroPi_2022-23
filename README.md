@@ -102,8 +102,8 @@ The most important functions are:
  - Appending a message to the log file: *log(msg)*
  - Cropping the picture to match the circular frame of the window: cropCircle(scaledIm, im, scalingFactor)
 
-**Image segmentation**
-*segmentation(im)*
+**Image segmentation**  
+*segmentation(im)*  
 Paramaters:
  - *im*: OpenCV image
 Given an OpenCV image as 
