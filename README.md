@@ -14,10 +14,12 @@ The main function of our program is to take pictures of the Earth's surface as f
 
 ## Structure
 Our program is structured as follows:
-- Initialise the first objects, such as the starting time of the program, the *Sense Hat*; get the path of the containing folder;
+- Initialise the first objects, such as the starting time of the program, the *SenseHat*; get the path of the containing folder;
 - Open the *log* file or create it if it does not exist;
 - The header of the *csv* file is defined at the beginning of the main function;
-- The *csv* file for saving the data collected by the *Sense Hat* is opened or created if it does not exist;
+	> We will collect every parameter that the *SenseHat* is capable of, and the *csv* header will be:
+	Date[DD/MM/YYYY],Time[UTC-24H],Altitude[m],Latitude[Deg],Longitude[Deg],Yaw[Deg],Pitch[Deg],Roll[Deg],xAcceleration[g],yAcceleration[g],zAcceleration[g],xMag[µT],yMag[µT],zMag[µT],xω[rad/s],yω[rad/s],zω[rad/s],Temperature[°C],Pressure[hPa],Humidity[%]
+- The *csv* file for saving the data collected by the *SenseHat* is opened or created if it does not exist;
 - A folder to contain the pictures, `...\Pictures`, is created if it does not exist;
 - The *csv writer* and the *PiCamera* are initialised;
 - Create some variables that will be needed later;
@@ -32,6 +34,20 @@ Our program is structured as follows:
 			- If the score is high enough, the picture is **cropped** around the edge of the window of the ISS to save as much storage space as possible. This operation is performed by another *cv* algorithm - of which we are quite proud - that isolates the bright circle of the window, finds the border, and crops the image accordingly;
 			- The cropped image is saved;
 			- The EXIF data that was previously saved in the temporary image by *PiCamera* is copied to the newly saved final image, completing this long process of segmenting and cropping the picture;
-			- Calculate a new time interval to wait before taking the next picture. This value is estimated by keeping track of the occupated storage space and the remaining time:
-				> - The remaining space is the total allowed space minus the current space taken up by the '...\Pictures' folder: $maxSpace - currentSpace = 2975000000 - picFolderSize$
-				> - The remaining time is the time the program is expected to end minus the current time: `remaining_time = end_time - now = start_time + program_time - current_time`
+			- Calculate a new time interval to wait before taking the next picture. This value is estimated by keeping track of the occupated storage space (in bytes) and the remaining time:
+				> - The remaining space is the total allowed space minus the current space taken up by the '...\Pictures' folder:
+				$remainingspace = maxspace - currentspace = 2975000000 - picfoldersize$
+				> - The remaining time is the time the program is expected to end minus the current time:
+				$remainingtime = endtime - now = starttime + programtime - currenttime$
+				> - Given the space and the time, it is possible to estimate a maximum rate at which adding bytes to the occupied space without exceeding the maximum space:
+				$v = \frac{s}{t} \implies rate = \frac{remainingspace}{remainingtime}$
+				> - The aforementioned rate has to be equal to the rate of the number of *n* pictures taken in the remaining time, seen as a sum of *n* intervals:
+				$remainingspace = n\cdot averagesize$; $remainingtime = n\cdot interval$
+				> - When these are substituded in:
+				$rate = \frac{remainingspace}{remainingtime} = \frac{n\cdot averagesize}{n\cdot interval}$ ; the *n* cancels out:
+				$\frac{remainingspace}{remainingtime} = \frac{averagesize}{interval} \implies interval = \frac{averagesize\cdot remainingtime}{remainingspace}$
+				> - The average size of a picture in bytes is calculated by dividing the total current size of the '...\Pictures' folder by the number of pictures:
+				$averagesize = \frac{picfoldersize}{picsnumber}$
+				$\implies interval = \frac{ \frac{picfoldersize}{picsnumber}\cdot remainingtime}{remainingspace} = \frac{picfoldersize\cdot remainingtime}{picsnumber \cdot remainingspace}$
+				Where $interval$, as previously indicated, is the amount of seconds to wait before taking the next picture in order to not exceed the $remainingspace$
+		- The *Sense Hat* data is retrieved and saved 
