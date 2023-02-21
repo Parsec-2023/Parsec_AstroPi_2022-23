@@ -1,6 +1,10 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D
 from keras.models import Model
 
+"""
+This neural network was originally created to segment the images, but it was not worth the effort because of lengthy training
+"""
+
 inputs = Input((1024, 1024, 3))
 
 # encoder
