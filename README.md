@@ -116,7 +116,7 @@ Given an OpenCV image, this function uses a series of image manipulations to ret
 
 |Original image|Segmented image|
 |--|--|
-|![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|  |
+| ![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/segmentationResult.png) |
 
 ```mermaid
 flowchart  TD;
