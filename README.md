@@ -138,7 +138,7 @@ Given an OpenCV image, this function uses a series of image manipulations to ret
 
 |Original image|Segmented image|
 |--|--|
-| ![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/segmentationResult.png) |
+| ![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![segmented image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/segmentationResult.png) |
 
 ```mermaid
 flowchart  TD;
@@ -177,7 +177,7 @@ Paramaters:
 > 
 >Returns: (bool, string)
 
-This function converts the decimal angle passed as argument into an EXIF compatible string `"deg/1,min/1, sec/1000"` like in the case `12° 39' 12.365" -> "12/1,39/1,12365/1000"`. It returns True when the parameter was negative, otherwise False if positive, and the EXIF angle.
+This function converts the decimal `angle` into an EXIF compatible string `"deg/1,min/1, sec/1000"` like in the case `12° 39' 12.365" -> "12/1,39/1,12365/1000"`. It returns `True` when the parameter was negative, otherwise `False` if positive, and the EXIF angle.
 
 ```mermaid
 flowchart  TD;
@@ -194,8 +194,23 @@ Paramaters:
 > 
 > Returns: void
 
-Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:: **
-$score = 10\cdot greenpercentage + redpercentage$
+Appends a new line to the *log* file `...\log.txt`, in the format `[dd/mm/yyyy,hh:mm:ss] msg`
+
+***
+**Cropping the picture**  
+>*cropCircle(scaledIm, im, scalingFactor)*  
+Paramaters:
+> - *scaled*: OpenCV image
+> - *im*: OpenCV image
+> - *scalingFactor*: float
+> 
+>Returns: OpenCV image
+
+Uses the window mask of the image `scaledIm` to efficiently find a circle that fits the edge of the window, scales up this circle based on `scalingFactor` and returns the image `im` accordingly cropped.
+|Scaled image|Original image|Mask with circle|Cropped image|
+|--|--|--|--|
+|![scaled image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/scaledImage.png)|![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage2.jpg)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/mask.png)|![cropped image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/croppedImage2.jpg)|
+
 
 ```mermaid
 flowchart  TD;
