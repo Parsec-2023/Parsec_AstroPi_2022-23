@@ -103,10 +103,20 @@ The most important functions are:
  - Cropping the picture to match the circular frame of the window: cropCircle(scaledIm, im, scalingFactor)
 
 **Image segmentation**  
-*segmentation(im)*  
+>*segmentation(im)*  
 Paramaters:
- - *im*: OpenCV image
-Given an OpenCV image as 
+> - *im*: OpenCV image
+> - *return*: OpenCV image
+
+Given an OpenCV image, this function uses a series of image manipulations to return another OpenCV image that is the segmented version of the one that is passed as parameter. The segmentation colour classes are:
+- Green RGB(0, 255, 0) = vegetation
+- Blue RGB(0, 0, 255) = water
+- White RGB(255, 255, 255) = clouds and glaciers
+- Red RGB(255, 0, 0) = anything else, mostly land without vegetation
+
+|Original image|Segmented image|
+|--|--|
+|![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|  |
 
 ```mermaid
 flowchart  TD;
