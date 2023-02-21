@@ -55,6 +55,29 @@ Our program is structured as follows:
 	- The total size of the picture folder is checked to make sure it does not exceed 2.75GB. If it does, the program is terminated;
 - Close the camera, the *csv* file and the *log* file.
 
+**Flowchart**
 ```mermaid
-graph  TD;  A-->B;  A-->C;  B-->D;  C-->D;
+flowchart  TD;
+S([Start])-->0(Import libraries and modules)-->1(Get start time, initialise sense hat, get parent folder, open log file)
+
+subgraph Main
+1-->d1{Does the pictures folder exist?}
+d1-->|No|c0(Create it)
+d1-->|Yes|d2{Does the csv file exist?}
+c0-->d2
+d2-->|No|c1(Create it)
+d2-->|Yes|d3{Is the csv file empty?}
+c1-->d3
+d3-->|Yes|c2(Write the header)
+d3-->|No|4(Initialise the camera)
+c2-->4-->5(Initialise valiables)
+5-->d4{Have 3 hours passed?}
+d4-->|Yes|6(Log final time)-->E([End])
+d5{Is it daytime?}
+d4-->|Not yet|d5
+end
+
+
+subgraph While loop
+end
 ```
