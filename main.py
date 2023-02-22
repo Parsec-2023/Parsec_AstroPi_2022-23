@@ -94,8 +94,8 @@ def main():
     # set the initial interval for taking pictures to 3 seconds
     interval = 3
 
-    # run the loop for 2 hours and 55 minutes after start time
-    while (now < (startTime + timedelta(hours = 2, minutes = 57, seconds = 30))):
+    # run the loop for 2 hours and 59 minutes after start time
+    while (now < (startTime + timedelta(hours = 2, minutes = 59))):
 
         # start counting the time for each picture
         picDeltaTime = datetime.now()
@@ -134,7 +134,7 @@ def main():
                     print("Tmp picture opened")
 
                     # scale down the image to make the following operations faster
-                    scalingFactor = 0.3
+                    scalingFactor = 0.25
                     scaledImage = cv2.resize(image, None, fx = scalingFactor, fy = scalingFactor)
                     print("Picture resized")
 
@@ -176,7 +176,7 @@ def main():
                         # the remaining space is the total space (we went for 2.975GB to leave some wiggle room for safety) minus the current space taken
                         remainingSpace = 2975000000 - picFolderSize
                         # the remaining time is the initial time plus almost three hours minus the current time
-                        remainingTime = (startTime + timedelta(hours = 2, minutes = 57, seconds = 30) - datetime.now()).seconds
+                        remainingTime = (startTime + timedelta(hours = 2, minutes = 59) - datetime.now()).seconds
                         # given 'remainingSpace' bytes left and 'remainingTime' seconds to save an 'averageSpace' amount of bytes every 'interval' seconds, the following proportion applies:
                         # interval : averageSpace = remainingTime : remainingSpace
                         # therefore -> interval = averageSpace * remainingTime / remainingSpace
@@ -221,9 +221,9 @@ def main():
             log("Program aborted after " + elapsedTime + "s: size limit exceeded")
             break
     
-    # log the final time in case the program ended correctly after 2h:55m
+    # log the final time in case the program ended correctly after 2h:59m
     totalTime = datetime.now() - startTime
-    if (totalTime >= timedelta(hours = 2, minutes = 57, seconds = 30)):
+    if (totalTime >= timedelta(hours = 2, minutes = 59)):
         log("Program successfully terminated after " + str(totalTime.seconds) + "s")
 
     # close camera and files
