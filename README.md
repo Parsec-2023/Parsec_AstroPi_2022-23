@@ -7,19 +7,18 @@ Members: Daniele Nicolia, Davide Pascu, Matteo Saporiti, Leonardo Simonetti, Fed
 ***
 # Our project
 ## Abstract
-Our project aims to determine whether and how much drainage **basins**, rivers, **lakes**, glaciers, and coasts have changed in the last decades due to **climate change**. The parameters we are going to focus on are the area covered by water, the shape of the water stream, and eventually the amount of water provided to the surrounding land; this last aspect, which will be estimated considering vegetation health (that is an effect of the quantity of water received) will allow us to understand also how much water the stream supplies to the surrounding environment and consequently how the evolution of the water stream modifies the environment itself. The final destination of our research is to use the collected data to study possible links with climate change and **predict** how the observed sites will change in the future, considering possible effects on the landscape and on the local population.
+Our project aims to determine whether and how much drainage **basins**, rivers, **lakes**, glaciers, and coasts have changed in the last decades due to **climate change**. The parameters we are going to focus on are the area covered by water, the shape of the water stream, and possibly, the amount of water provided to the surrounding land; this last aspect, which will be estimated considering vegetation health (that is an effect of the quantity of water received) will allow us to understand also how much water the stream supplies to the surrounding environment and consequently how the evolution of the water stream modifies the environment itself. The final destination of our research is to use the collected data to study possible links with climate change and **predict** how the observed sites will change in the future, considering possible effects on the landscape and the local population.
 
-Our program makes use of computer vision techniques combined with **NDVI** and **NDWI** to recognise whether the ISS is passing over a relevant landscape and save as many useful images as possible during the three-hour period on the ISS.
+Our program makes use of computer vision techniques combined with **NDVI** and **NDWI** to recognise whether the ISS is passing over a relevant landscape and save as many useful images as possible during the three hours on the ISS.
 
 ## Future Plans for Phase 4
-Our plan after Phase 3, ***assuming*** we get flight status, is to use the pictures that we collect on the ISS and the NIR satellite image datasets that can be found on the Internet to train a **machine learning model** capable of **predicting** the future water and vegetation **coverage** of a certain area, based on the past and current images of that area, taking into account seasonal variations and other factors.
+Our plan after Phase 3, **_assuming_** we get flight status, is to use the pictures that we collect on the ISS and the NIR satellite image datasets that can be found on the Internet to train a **machine learning model** capable of **predicting** the future water and vegetation **coverage** of a certain area, based on the past and current images of that area, taking into account seasonal variations and other factors.
 
 # The software
-The main function of our program is to take pictures of the Earth's surface as frequently as possible, only saving to memory the ones that are relevant. We have made extensive use of try-except statements to make sure that the program will not stop before it is needed, and we have implemented an intricated logging system that, in case anything goes wrong, will tell us the cause of the problem. We tried to follow a good coding practice, writing the code as readable as possible, and especially ensuring to keep a certain level of optimisation and safety during runtime.
-The most significant features of our program are:
- - **NDVI** and **NDWI** calculation.
- - Algorithmic **image segmentation** to detect vegetation and land in the image and only save the pictures that contain land, excluding those that are all ocean or clouds. ***Note**: we initially wanted to use machine learning to perform image segmentation, we had also implemented a **U-Net** convolutional neural network, but we did not find any datasets for the segmentation of NIR satellite images. In order to train it we would have had to make our own dataset of segmented images, which meant painting hundreds or **thousands** of NIR satellite images by hand. We concuded that it would take us much less time to make an algorithm that does the same job, which is what we did, and it works just fine.*
- - Image cropping to save storage.
+The main function of our program is to take pictures of the Earth's surface as frequently as possible, only saving to memory the relevant ones. We have made extensive use of try-except statements to make sure that the program will not stop before it is needed, and we have implemented an intricate logging system that, in case anything goes wrong, will tell us the cause of the problem. We tried to follow good coding practices, writing the code as readable as possible, and especially ensuring to keep a certain level of optimisation and safety during runtime. The most significant features of our program are:
+-   **NDVI** and **NDWI** calculation.
+-   Algorithmic **image segmentation** to detect vegetation and land in the image and only save the pictures that contain land, excluding those that are all ocean or clouds. **_Note_**_: we initially wanted to use machine learning to perform image segmentation, we had also implemented a_ **_U-Net_** _convolutional neural network, but we did not find any datasets for the segmentation of NIR satellite images. To train it we would have had to make our own dataset of segmented images, which meant painting hundreds or_ **_thousands_** _of NIR satellite images by hand. We concluded that it would take us much less time to make an algorithm that does the same job, which is what we did, and it works just fine._
+-   Image cropping to save storage.
 
 ## Structure
 Our program is structured as follows:  
@@ -27,12 +26,12 @@ Our program is structured as follows:
 *Initialisation*
 - Initialise the first objects and variables, such as the start time of the program, the *SenseHat*, get the path of the containing folder;
 - Open the *log* file or create it if it does not exist;
-- At the beginning of the main() function, the header of the *csv* file is defined;
-	> We will collect every parameter that the *SenseHat* is capable of, and the *csv* header will be:  
+- At the beginning of the main() function, the header of the *CSV* file is defined;
+	> We will collect every parameter that the *SenseHat* is capable of, and the *CSV* header will be:  
 	Date[DD/MM/YYYY],Time[UTC-24H],Altitude[m],Latitude[Deg],Longitude[Deg],Yaw[Deg],Pitch[Deg],Roll[Deg],xAcceleration[g],yAcceleration[g],zAcceleration[g],xMag[µT],yMag[µT],zMag[µT],xω[rad/s],yω[rad/s],zω[rad/s],Temperature[°C],Pressure[hPa],Humidity[%]
-- The *csv* file for saving the data collected by the *SenseHat* is opened or created if it does not exist;
+- The *CSV* file for saving the data collected by the *SenseHat* is opened or created if it does not exist;
 - A folder to contain the pictures, `...\Pictures`, is created if it does not exist;
-- The *csv writer* and the *PiCamera* are initialised;
+- The *CSV writer* and the *PiCamera* are initialised;
 - Some variables that will be needed later are created;  
 
 *Main loop*
@@ -64,10 +63,10 @@ Our program is structured as follows:
 				$averagesize = \frac{picfoldersize}{picsnumber}$  
 				$\implies interval = \frac{ \frac{picfoldersize}{picsnumber}\cdot remainingtime}{remainingspace} = \frac{picfoldersize\cdot remainingtime}{picsnumber \cdot remainingspace}$  
 				Where $interval$, as previously indicated, is the amount of seconds to wait before taking the next picture in order to not exceed the $remainingspace$
-		- The *Sense Hat* data is retrieved with `getData()` and saved to the *csv* file;
+		- The *Sense Hat* data is retrieved with `getData()` and saved to the *CSV* file;
 	- The current time `now` is updated;
 	- The total size of the picture folder is checked to make sure it does not exceed 2.75GB. If it does, the program is terminated;
-- Close the camera, the *csv* file and the *log* file.
+- Close the camera, the *CSV* file and the *log* file.
 
 **Flowchart**
 ```mermaid
@@ -77,10 +76,10 @@ S([Start])-->0(Import libraries and modules)-->1(Get start time, initialise sens
 subgraph Main
 1-->d1{Does the pictures folder exist?}
 d1-->|No|c0(Create it)
-d1-->|Yes|d2{Does the csv file exist?}
+d1-->|Yes|d2{Does the CSV file exist?}
 c0-->d2
 d2-->|No|c1(Create it)
-d2-->|Yes|d3{Is the csv file empty?}
+d2-->|Yes|d3{Is the CSV file empty?}
 c1-->d3
 d3-->|Yes|c2[/Write the header/]
 d3-->|No|4(Initialise the camera)
@@ -92,7 +91,7 @@ d4-->|Not yet|d4.5{Have 'interval' seconds passed since the last picture was tak
 d4.5-->|Not yet|d4
 d4.5-->|Yes|d5
 d5{Is it daytime?}
-d5-->|No|7[/Save csv data/]-->8(Reset loop timer variables)-->9
+d5-->|No|7[/Save CSV data/]-->8(Reset loop timer variables)-->9
 9(Update current time)-->d6{Maximum space exceeded?}
 d6-->|Yes|6
 d6-->|No|d4
@@ -130,7 +129,7 @@ Paramaters:
 > 
 > Returns: OpenCV image
 
-Given an OpenCV image, this function uses a series of image manipulations to return another OpenCV image that is the segmented version of the one that is passed as parameter. It uses NDVI and NDVI to better identify and distinguish the differences in colour inside the image. The segmentation colour classes are:
+Given an OpenCV image, this function uses a series of image manipulations to return another OpenCV image which is the segmented version of the one that is passed as a parameter. It uses NDVI and NDVI to better identify and distinguish the differences in colour inside the image. The segmentation colour classes are:  
 - Green RGB(0, 255, 0) = vegetation
 - Blue RGB(0, 0, 255) = water
 - White RGB(255, 255, 255) = clouds and glaciers
@@ -234,7 +233,7 @@ Paramaters:
 > 
 >Returns: BGR OpenCV image
 
-This function converts an 8-bit image to a 24-bit image, colouring the white pixels with the RGB value defined by the parameters *r*, *g*, and *b*.
+This function converts an 8-bit image to a 24-bit image, while colouring the white pixels with the RGB value defined by the parameters _r_, _g_, and _b_.
 
 
 ```mermaid
@@ -252,8 +251,8 @@ Paramaters:
 > 
 >Returns: grayscale OpenCV image
 
-Retuns an 8-bit grayscale mask of the 24-bit BGR image that is passed as argument. This mask represents the shape of the window of the ISS: it is white where light is coming in through the window and black everywhere else, where the darker edges of the window are.  
-This is obtained by drastically increasing the contrast of the input image to create a difference in brightness between the window and the rest, and then applying a binary threshold to extremise the colour. The mask is filled in order to remove any white spots outside of the main circle and black spots inside of it. 
+Returns an 8-bit grayscale mask of the 24-bit BGR image that is passed as an argument. This mask represents the shape of the window of the ISS: it is white where light is coming in through the window and black everywhere else, where the darker edges of the window are.
+This is obtained by drastically increasing the contrast of the input image to create a difference in brightness between the window and the rest, and then applying a binary threshold to extremise the colour. The mask is filled in order to remove any white spots outside of the main circle and black spots inside of it.
 
 ```mermaid
 flowchart  TD;
@@ -288,7 +287,7 @@ Paramaters:
 > 
 >Returns: BGR OpenCV image
 
-This funtion takes in a 24-bit *OpenCV image* and a number *k*, which is 75 by default, and applies a contrast modifier of intensity k on the image, together with a sharpness and brightness increase.
+This function takes in a 24-bit _OpenCV image_ and a number _k_, which is 75 by default, and applies a contrast modifier of intensity k on the image, together with a sharpness and brightness increase.
 
 ```mermaid
 flowchart  TD;
@@ -303,7 +302,6 @@ end
 Returns: (float, float, float)
 
 This function finds the geographic position of the ISS at the moment of execution and returns a tuple of three floats that contain the altitude in meters, the latitude, and the longitude in this order. The angles are expressed in decimal degrees.
-
 ```mermaid
 flowchart  TD;
 subgraph getISSPos
@@ -316,7 +314,7 @@ end
 >*getData()*  
 Returns: list of strings
 
-This function collects all the necessary data from the *SenseHat* and returns it as a list of strings. When there is an error, the value that threw the exception is replaced with a hyphen.  
-The order of the data corresponds to what is defined in the *csv* file header:  
+This function collects all the necessary data from the _SenseHat_ and returns it as a list of strings. When there is an error, the value that threw the exception is replaced with a hyphen.  
+The order of the data corresponds to what is defined in the _CSV_ file header: 
 
     Date[DD/MM/YYYY],Time[UTC-24H],Altitude[m],Latitude[Deg],Longitude[Deg],Yaw[Deg],Pitch[Deg],Roll[Deg],xAcceleration[g],yAcceleration[g],zAcceleration[g],xMag[µT],yMag[µT],zMag[µT],xω[rad/s],yω[rad/s],zω[rad/s],Temperature[°C],Pressure[hPa],Humidity[%]
