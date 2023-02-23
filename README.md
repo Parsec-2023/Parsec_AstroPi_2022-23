@@ -18,7 +18,7 @@ Our plan after Phase 3, ***assuming*** we get flight status, is to use the pictu
 The main function of our program is to take pictures of the Earth's surface as frequently as possible, only saving to memory the ones that are relevant. We have made extensive use of try-except statements to make sure that the program will not stop before it is needed, and we have implemented an intricated logging system that, in case anything goes wrong, will tell us the cause of the problem. We tried to follow a good coding practice, writing the code as readable as possible, and especially ensuring to keep a certain level of optimisation and safety during runtime.
 The most significant features of our program are:
  - **NDVI** and **NDWI** calculation.
- - Algorithmic **image segmentation** to detect vegetation and land in the image and only save the pictures that contain land, excluding those that are all ocean or clouds. ***Note**: we initially wanted to use machine learning to perform image segmentation, we had also implemented a **U-Net** convolutional neural network, but in order to train it we would have had to make our own dataset of segmented images, which meant painting hundreds or **thousands** of NIR satellite images by hand. We figured it would take us much less time to make an algorithm that does the same job, which is what we did, and it works just fine.*
+ - Algorithmic **image segmentation** to detect vegetation and land in the image and only save the pictures that contain land, excluding those that are all ocean or clouds. ***Note**: we initially wanted to use machine learning to perform image segmentation, we had also implemented a **U-Net** convolutional neural network, but we did not find any datasets for the segmentation of NIR satellite images. In order to train it we would have had to make our own dataset of segmented images, which meant painting hundreds or **thousands** of NIR satellite images by hand. We concuded that it would take us much less time to make an algorithm that does the same job, which is what we did, and it works just fine.*
  - Image cropping to save storage.
 
 ## Structure
@@ -117,9 +117,9 @@ The most important functions are:
  - Cropping the picture to match the circular frame of the window: *cropCircle(scaledIm, im, scalingFactor)*
  - Turning a grayscale mask into a coloured three channel image: *colourise(im, r, g, b)*
  - Getting the mask of the window of the ISS: *mask(im)*
- - Filling in the holes inside a mask: *fill(im)*
+ - Filling masks: *fill(im)*
  - Changing the contrast of the image: *contrast(im, k)*
- - Getting the current position of the ISS: *getISSPos()*
+ - Getting the current location of the ISS: *getISSPos()*
  - Getting data from the *SenseHat*: *getData()*
  - Others: formatTime(), getDate(), getTime()
 ***
@@ -156,7 +156,7 @@ Paramaters:
 > 
 >Returns: float
 
-Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:
+Given an OpenCV image, this function finds the percentages of green and red pixels in the image, and returns a score based on the formula:  
 $score = 10\cdot greenpercentage + redpercentage$
 
 ```mermaid
@@ -177,7 +177,8 @@ Paramaters:
 > 
 >Returns: (bool, string)
 
-This function converts the decimal `angle` into an EXIF compatible string `"deg/1,min/1, sec/1000"` like in the case `12° 39' 12.365" -> "12/1,39/1,12365/1000"`. It returns `True` when the parameter was negative, otherwise `False` if positive, and the EXIF angle.
+This function converts the decimal `angle` into an EXIF compatible string `"deg/1,min/1, sec/1000"` like in the case `12° 39' 12.365" -> "12/1,39/1,12365/1000"`.  
+It returns `True` when the parameter was negative, otherwise `False` if positive, and the EXIF angle.
 
 ```mermaid
 flowchart  TD;
@@ -194,7 +195,7 @@ Paramaters:
 > 
 > Returns: void
 
-Appends a new line to the *log* file `...\log.txt`, in the format `[dd/mm/yyyy,hh:mm:ss] msg`
+Appends a new line to the *log* file `...\log.txt`, in the format `[dd/mm/yyyy,hh:mm:ss] msg`.
 
 ***
 **Cropping the picture**  
@@ -233,7 +234,7 @@ Paramaters:
 > 
 >Returns: BGR OpenCV image
 
-This function converts an 8-bit image to a 24-bit image, colouring the white pixels with the RGB colour defined by the parameters *r*, *g*, and *b*.
+This function converts an 8-bit image to a 24-bit image, colouring the white pixels with the RGB value defined by the parameters *r*, *g*, and *b*.
 
 
 ```mermaid
@@ -251,7 +252,8 @@ Paramaters:
 > 
 >Returns: grayscale OpenCV image
 
-Retuns an 8-bit grayscale mask of the 24-bit BGR image that is passed as argument. This mask represents the shape of the window of the ISS: it is white where light is coming in through the window; black everywhere else, meaning the darker edges of the window. This is obtained by drastically increasing the contrast of the input image to create a difference in brightness between the window and the rest, and then applying a binary threshold to extremise the colour, before filling in the picture in order to remove any white spots outside of the main circle and black spots inside of it. 
+Retuns an 8-bit grayscale mask of the 24-bit BGR image that is passed as argument. This mask represents the shape of the window of the ISS: it is white where light is coming in through the window and black everywhere else, where the darker edges of the window are.  
+This is obtained by drastically increasing the contrast of the input image to create a difference in brightness between the window and the rest, and then applying a binary threshold to extremise the colour. The mask is filled in order to remove any white spots outside of the main circle and black spots inside of it. 
 
 ```mermaid
 flowchart  TD;
@@ -261,7 +263,7 @@ end
 ```
 
 ***
-**Filling in the holes inside a mask**  
+**Filling masks**  
 >*fill(im)*  
 Paramaters:
 > - *im*: grayscale OpenCV image
@@ -273,7 +275,7 @@ Given a window mask as the argument, this function flood fills the black area ar
 ```mermaid
 flowchart  TD;
 subgraph fill
-1(Convert the input into a PIL image and increase its brightness and contrast)-->2(Convert it back into an OpenCV image)-->3(Apply a binary threshold)-->4(Fill the image)
+1(Make a copy of the initial mask)-->2(Flood fill the original mask)-->3(Invert the filled mask)-->4(Add the original mask and its copy together with a bitwise OR operation)
 end
 ```
 
@@ -296,7 +298,7 @@ end
 ```
 
 ***
-**Getting the current position of the ISS**  
+**Getting the current location of the ISS**  
 >*getISSPos()*  
 Returns: (float, float, float)
 
@@ -305,23 +307,16 @@ This function finds the geographic position of the ISS at the moment of executio
 ```mermaid
 flowchart  TD;
 subgraph getISSPos
-1(Get current time)-->2(Find the point on Earth that is )-->3(Apply a binary threshold)-->4(Fill the image)
+1(Get current time)-->2(Find the current position of the ISS in space)-->3(Find the point on the Earth's surface that is directly beneath the ISS)
 end
 ```
 
 ***
 **Getting data from the *SenseHat***  
 >*getData()*  
-Paramaters:
-> - *angle*: float
-> 
->Returns: (bool, string)
+Returns: list of strings
 
-This function converts the decimal `angle` into an EXIF compatible string `"deg/1,min/1, sec/1000"` like in the case `12° 39' 12.365" -> "12/1,39/1,12365/1000"`. It returns `True` when the parameter was negative, otherwise `False` if positive, and the EXIF angle.
+This function collects all the necessary data from the *SenseHat* and returns it as a list of strings. When there is an error, the value that threw the exception is replaced with a hyphen.  
+The order of the data corresponds to what is defined in the *csv* file header:  
 
-```mermaid
-flowchart  TD;
-subgraph convertToExif
-1(Convert the input into a PIL image and increase its brightness and contrast)-->2(Convert it back into an OpenCV image)-->3(Apply a binary threshold)-->4(Fill the image)
-end
-```
+    Date[DD/MM/YYYY],Time[UTC-24H],Altitude[m],Latitude[Deg],Longitude[Deg],Yaw[Deg],Pitch[Deg],Roll[Deg],xAcceleration[g],yAcceleration[g],zAcceleration[g],xMag[µT],yMag[µT],zMag[µT],xω[rad/s],yω[rad/s],zω[rad/s],Temperature[°C],Pressure[hPa],Humidity[%]
