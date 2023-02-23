@@ -37,7 +37,7 @@ Our program is structured as follows:
 
 *Main loop*
 
-- Start a *while* loop that cycles continuously for 2 hours, 57 minutes and 30 seconds *(2:57:30)* `now < (startTime + timedelta(hours = 2, minutes = 57, seconds = 30))`;
+- Start a *while* loop that cycles continuously for 2 hours and 59 minutes `now < (startTime + timedelta(hours = 2, minutes = 59))`;
 	- By an if statement, enter the routine that will take a picture and save related data every 3 seconds or more, depending on how much free memory out of the 3GB is left and how much time remains. This time interval will be calculated at the end of the loop;
 		- Check if the ISS is over a sunlit area (`ISS.at(load.timescale().now()).is_sunlit(ephemeris)`): if not, only data will be collected and no picture will be taken;
 		- Set **EXIF** data of the next picture according to the current location of the ISS;
@@ -121,7 +121,7 @@ The most important functions are:
  - Changing the contrast of the image: *contrast(im, k)*
  - Getting the current position of the ISS: *getISSPos()*
  - Getting data from the *SenseHat*: *getData()*
- - Others: formatTime(), getDate(), getTime(),
+ - Others: formatTime(), getDate(), getTime()
 ***
 **Image segmentation**  
 >*segmentation(im)*  
@@ -143,9 +143,9 @@ Given an OpenCV image, this function uses a series of image manipulations to ret
 ```mermaid
 flowchart  TD;
 subgraph segmentation
-m11[Get mask of the window]-->m12(Remove the parts of the image outside the mask)-->m13(Separate the colour channels)
-m13-->ndvi(Generate NDVI mask)-->ndwi(Generate NDWI mask)-->white(Generate mask of the white areas)-->land(Generate mask of the rest of the land)-->m14(Intersect the masks)
-m14-->m15(Colourise the masks)-->m16(Overlay all of the masks together into a single image)
+1[Get mask of the window]-->2(Remove the parts of the image outside the mask)-->3(Separate the colour channels)
+3-->ndvi(Generate NDVI mask)-->ndwi(Generate NDWI mask)-->white(Generate mask of the white areas)-->land(Generate mask of the rest of the land)-->4(Intersect the masks)
+4-->5(Colourise the masks)-->6(Overlay all of the masks together into a single image)
 end
 ```
 ***
@@ -162,10 +162,10 @@ $score = 10\cdot greenpercentage + redpercentage$
 ```mermaid
 flowchart  TD;
 subgraph evaluate
-m21(Split the image into three colour channels)-->m22(Get total number of pixels)
-m22-->m23(Count the green pixels)-->pg(Calculate green percentage)-->m25
-m22-->m24(Count the red pixels)-->pr(Calculate red percentage)-->m25
-m25(Calculate score)
+1(Split the image into three colour channels)-->2(Get total number of pixels)
+2-->3(Count the green pixels)-->pg(Calculate green percentage)-->5
+2-->4(Count the red pixels)-->pr(Calculate red percentage)-->5
+5(Calculate score)
 end
 ```
 
@@ -182,7 +182,7 @@ This function converts the decimal `angle` into an EXIF compatible string `"deg/
 ```mermaid
 flowchart  TD;
 subgraph convertToExif
-m31(Save the sign of the angle and get its absolute value)-->m32(Convert the decimal angle into separated degrees, minutes and seconds)-->m33(Format the string)
+1(Save the sign of the angle and get its absolute value)-->2(Convert the decimal angle into separated degrees, minutes and seconds)-->3(Format the string)
 end
 ```
 
@@ -206,7 +206,7 @@ Paramaters:
 > 
 >Returns: OpenCV image
 
-Uses the window mask of the image `scaledIm` to efficiently find a circle that fits the edge of the window, scales up this circle based on `scalingFactor` and returns the image `im` accordingly cropped.
+Uses the window mask of the image `scaledIm` to efficiently find a circle that fits the edge of the window, scales up this circle based on `scalingFactor` to adapt it to the unscaled picture, and returns the image `im` accordingly cropped.
 |Scaled image|Original image|Mask with circle|Cropped image|
 |--|--|--|--|
 |![scaled image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/scaledImage.png)|![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage2.jpg)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/mask.png)|![cropped image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/croppedImage2.jpg)|
@@ -214,10 +214,114 @@ Uses the window mask of the image `scaledIm` to efficiently find a circle that f
 
 ```mermaid
 flowchart  TD;
-subgraph evaluate
-m21(Split the image into three colour channels)-->m22(Get total number of pixels)
-m22-->m23(Count the green pixels)-->pg(Calculate green percentage)-->m25
-m22-->m24(Count the red pixels)-->pr(Calculate red percentage)-->m25
-m25(Calculate score)
+subgraph cropCircle
+1(Get the size of the scaled image and its mask)-->2(Find all the contours of the image)-->3(Consider the next contour of the image)-->4(Find a circle that fits the current contour)-->5{Is this circle of the right size?}
+5-->|No|3
+5-->|Yes|6
+6(Upscale the circle by dividing it by the scaling factor)-->7(Create a rectangle of the size of the circle)-->8(Crop the original image to the rectangle)
+end
+```
+
+***
+**Turning a grayscale mask into a coloured three channel image**  
+>*colourise(im, r, g, b)*  
+Paramaters:
+> - *im*: grayscale OpenCV image
+>  - *r*: int
+>  - *g*: int
+>  - *b*: int
+> 
+>Returns: BGR OpenCV image
+
+This function converts an 8-bit image to a 24-bit image, colouring the white pixels with the RGB colour defined by the parameters *r*, *g*, and *b*.
+
+
+```mermaid
+flowchart  TD;
+subgraph colourise
+1(Get a mask of the white pixels in the image)-->2(Create three colour channels - arrays - that are each a copy of the grayscale image)-->3(Set the values of r, g, and b to their respective channel only where the mask is present)-->4(Merge the three channels in the order b, g, and r)-->5(Apply a threshold that strongly determines the colour of the image)
+end
+```
+
+***
+**Getting the mask of the window of the ISS**  
+>*mask(im)*  
+Paramaters:
+> - *im*: BGR OpenCV image
+> 
+>Returns: grayscale OpenCV image
+
+Retuns an 8-bit grayscale mask of the 24-bit BGR image that is passed as argument. This mask represents the shape of the window of the ISS: it is white where light is coming in through the window; black everywhere else, meaning the darker edges of the window. This is obtained by drastically increasing the contrast of the input image to create a difference in brightness between the window and the rest, and then applying a binary threshold to extremise the colour, before filling in the picture in order to remove any white spots outside of the main circle and black spots inside of it. 
+
+```mermaid
+flowchart  TD;
+subgraph mask
+1(Convert the input into a PIL image and increase its brightness and contrast)-->2(Convert it back into an OpenCV image)-->3(Apply a binary threshold)-->4(Fill the image)
+end
+```
+
+***
+**Filling in the holes inside a mask**  
+>*fill(im)*  
+Paramaters:
+> - *im*: grayscale OpenCV image
+> 
+>Returns: grayscale OpenCV image
+
+Given a window mask as the argument, this function flood fills the black area around the window and inverts the resulting image, in order to get a mask that has a full white circle where the window of the ISS is, and is completely black outside of this circle, without random white patches.
+
+```mermaid
+flowchart  TD;
+subgraph fill
+1(Convert the input into a PIL image and increase its brightness and contrast)-->2(Convert it back into an OpenCV image)-->3(Apply a binary threshold)-->4(Fill the image)
+end
+```
+
+***
+**Changing the contrast of the image**  
+>*contrast(im, k)*  
+Paramaters:
+> - *im*: BGR OpenCV image
+> - *k* (= 75): int
+> 
+>Returns: BGR OpenCV image
+
+This funtion takes in a 24-bit *OpenCV image* and a number *k*, which is 75 by default, and applies a contrast modifier of intensity k on the image, together with a sharpness and brightness increase.
+
+```mermaid
+flowchart  TD;
+subgraph contrast
+1(Convert the input into a PIL image)-->2(Modify the contrast)-->3(Increase the sharpness and the brightness)-->4(Convert the image back to OpenCV)
+end
+```
+
+***
+**Getting the current position of the ISS**  
+>*getISSPos()*  
+Returns: (float, float, float)
+
+This function finds the geographic position of the ISS at the moment of execution and returns a tuple of three floats that contain the altitude in meters, the latitude, and the longitude in this order. The angles are expressed in decimal degrees.
+
+```mermaid
+flowchart  TD;
+subgraph getISSPos
+1(Get current time)-->2(Find the point on Earth that is )-->3(Apply a binary threshold)-->4(Fill the image)
+end
+```
+
+***
+**Getting data from the *SenseHat***  
+>*getData()*  
+Paramaters:
+> - *angle*: float
+> 
+>Returns: (bool, string)
+
+This function converts the decimal `angle` into an EXIF compatible string `"deg/1,min/1, sec/1000"` like in the case `12° 39' 12.365" -> "12/1,39/1,12365/1000"`. It returns `True` when the parameter was negative, otherwise `False` if positive, and the EXIF angle.
+
+```mermaid
+flowchart  TD;
+subgraph convertToExif
+1(Convert the input into a PIL image and increase its brightness and contrast)-->2(Convert it back into an OpenCV image)-->3(Apply a binary threshold)-->4(Fill the image)
 end
 ```
