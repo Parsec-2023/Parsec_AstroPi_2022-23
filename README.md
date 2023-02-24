@@ -260,7 +260,7 @@ This is obtained by drastically increasing the contrast of the input image to cr
 
 |Original image|Mask
 |--|--|
-|![Original](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/notFilled.jpg)|
+|![Original](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/filled.jpg)|
 
 ```mermaid
 flowchart  TD;
