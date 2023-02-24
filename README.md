@@ -1,3 +1,4 @@
+
 # Parsec-AstroPi
 **2022-2023**  
 Team name: Parsec  
@@ -114,7 +115,7 @@ The most important functions are:
  - Conversion of an angle to EXIF: *convertToExif(angle)*
  - Appending a message to the log file: *log(msg)*
  - Cropping the picture to match the circular frame of the window: *cropCircle(scaledIm, im, scalingFactor)*
- - Turning a grayscale mask into a coloured three channel image: *colourise(im, r, g, b)*
+ - Turning a greyscale mask into a coloured three channel image: *colourise(im, r, g, b)*
  - Getting the mask of the window of the ISS: *mask(im)*
  - Filling masks: *fill(im)*
  - Changing the contrast of the image: *contrast(im, k)*
@@ -223,10 +224,10 @@ end
 ```
 
 ***
-**Turning a grayscale mask into a coloured three channel image**  
+**Turning a greyscale mask into a coloured three channel image**  
 >*colourise(im, r, g, b)*  
 Paramaters:
-> - *im*: grayscale OpenCV image
+> - *im*: greyscale OpenCV image
 >  - *r*: int
 >  - *g*: int
 >  - *b*: int
@@ -235,11 +236,14 @@ Paramaters:
 
 This function converts an 8-bit image to a 24-bit image, while colouring the white pixels with the RGB value defined by the parameters _r_, _g_, and _b_.
 
+|Greyscale|Mask
+|--|--|
+|![greyscale](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/greyscale.jpg)|![coloured](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/water.jpg)|
 
 ```mermaid
 flowchart  TD;
 subgraph colourise
-1(Get a mask of the white pixels in the image)-->2(Create three colour channels - arrays - that are each a copy of the grayscale image)-->3(Set the values of r, g, and b to their respective channel only where the mask is present)-->4(Merge the three channels in the order b, g, and r)-->5(Apply a threshold that strongly determines the colour of the image)
+1(Get a mask of the white pixels in the image)-->2(Create three colour channels - arrays - that are each a copy of the greyscale image)-->3(Set the values of r, g, and b to their respective channel only where the mask is present)-->4(Merge the three channels in the order b, g, and r)-->5(Apply a threshold that strongly determines the colour of the image)
 end
 ```
 
@@ -249,10 +253,14 @@ end
 Paramaters:
 > - *im*: BGR OpenCV image
 > 
->Returns: grayscale OpenCV image
+>Returns: greyscale OpenCV image
 
-Returns an 8-bit grayscale mask of the 24-bit BGR image that is passed as an argument. This mask represents the shape of the window of the ISS: it is white where light is coming in through the window and black everywhere else, where the darker edges of the window are.
+Returns an 8-bit greyscale mask of the 24-bit BGR image that is passed as an argument. This mask represents the shape of the window of the ISS: it is white where light is coming in through the window and black everywhere else, where the darker edges of the window are.
 This is obtained by drastically increasing the contrast of the input image to create a difference in brightness between the window and the rest, and then applying a binary threshold to extremise the colour. The mask is filled in order to remove any white spots outside of the main circle and black spots inside of it.
+
+|Original image|Mask
+|--|--|
+|![Original](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/notFilled.jpg)|
 
 ```mermaid
 flowchart  TD;
@@ -265,11 +273,16 @@ end
 **Filling masks**  
 >*fill(im)*  
 Paramaters:
-> - *im*: grayscale OpenCV image
+> - *im*: greyscale OpenCV image
 > 
->Returns: grayscale OpenCV image
+>Returns: greyscale OpenCV image
 
 Given a window mask as the argument, this function flood fills the black area around the window and inverts the resulting image, in order to get a mask that has a full white circle where the window of the ISS is, and is completely black outside of this circle, without random white patches.
+
+|Original image|Mask|Filled mask|
+|--|--|--|
+|![Original](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/notFilled.jpg)|![filled mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/filled.jpg)|
+
 
 ```mermaid
 flowchart  TD;
@@ -288,6 +301,11 @@ Paramaters:
 >Returns: BGR OpenCV image
 
 This function takes in a 24-bit _OpenCV image_ and a number _k_, which is 75 by default, and applies a contrast modifier of intensity k on the image, together with a sharpness and brightness increase.
+
+|Original image|Contrasted image|
+|--|--|
+| ![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/notContrasted.jpg) |![contrasted](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/contrasted.jpg)|
+
 
 ```mermaid
 flowchart  TD;
