@@ -13,7 +13,7 @@ Our project aims to determine whether and how much drainage **basins**, rivers, 
 Our program makes use of computer vision techniques combined with **NDVI** and **NDWI** to recognise whether the ISS is passing over a relevant landscape and save as many useful images as possible during the three hours on the ISS.
 
 ## Future Plans for Phase 4
-Our plan after Phase 3, **_assuming_** we get flight status, is to use the pictures that we collect on the ISS and the NIR satellite image datasets that can be found on the Internet to train a **machine learning model** capable of **predicting** the future water and vegetation **coverage** of a certain area, based on the past and current images of that area, taking into account seasonal variations and other factors.
+Our plan after Phase 3 is to use the pictures that we collect on the ISS and the NIR satellite image datasets that can be found on the Internet to train a **machine learning model** capable of **predicting** the future water and vegetation **coverage** of a certain area, based on the past and current images of that area, taking into account seasonal variations and other factors.
 
 # The software
 The main function of our program is to take pictures of the Earth's surface as frequently as possible, only saving to memory the relevant ones. We have made extensive use of try-except statements to make sure that the program will not stop before it is needed, and we have implemented an intricate logging system that, in case anything goes wrong, will tell us the cause of the problem. We tried to follow good coding practices, writing the code as readable as possible, and especially ensuring to keep a certain level of optimisation and safety during runtime. The most significant features of our program are:
