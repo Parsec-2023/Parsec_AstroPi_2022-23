@@ -8,7 +8,7 @@ Members: Daniele Nicolia, Davide Pascu, Matteo Saporiti, Leonardo Simonetti, Fed
 ***
 # PHASE 4
 During the three hour period on the ISS, [our program](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/tree/Phases_1-3) collected 605 pictures and 2272 lines of data in a CSV file.\
-Of course, for half of the time we could not take pictures, as the ISS has a day cycle of 1.5 hours and it stays in the darkness of the night for this amount of time. We were quite lucky it passed over the USA, Porto Rico, Suriname and part of  on one "ISS-day" and over Canada and South Africa on the other.
+Of course, for half of the time we could not take pictures, as the ISS has a day cycle of 1.5 hours and it stays in the darkness of the night for this amount of time. We were quite lucky it passed over the USA, Porto Rico, Suriname, Canada, South Africa, and part of Brazil.
 
 ![ISS trajectory](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/3f93436504f8ce1ca5792ef3d068ba0a12a871b9/Trajectory.PNG)
 
