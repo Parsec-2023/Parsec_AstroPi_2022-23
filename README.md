@@ -12,7 +12,7 @@ Of course, for half of the time we could not take pictures, as the ISS has a day
 
 ![ISS trajectory](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/3f93436504f8ce1ca5792ef3d068ba0a12a871b9/Trajectory.PNG)
 
-For phase 4, we had to analyse this data: we wanted to see if there was any correlation between the area of land covered by vegetation and the surface area of lakes in the same region, or if we could implement a machine learning model - or anything similar in functionality - capable of taking satellite images (like we did with the [phase 2 program](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/tree/Phases_1-3)) and predicting the future variations of parameters linked to the environment and climate change, such as vegetation area, vegetation health, area covered by water, etc...\
+For phase 4, we had to analyse this data: we wanted to see if there was any correlation between the area of land covered by vegetation and the surface area of lakes in the same region, or if we could implement a machine learning model - or anything similar in functionality - capable of taking satellite images (like we did with the [phase 2 program](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/tree/Phases_1-3)) and predicting the future variations of parameters linked to the environment and climate change, such as vegetation area, vegetation health, area covered by water, etc...
 ***
 ## The process
 In short, what we needed to do was:
