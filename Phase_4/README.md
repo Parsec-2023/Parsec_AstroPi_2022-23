@@ -15,6 +15,10 @@ Of course, for half of the time we could not take pictures, as the ISS has a day
 For phase 4, we had to analyse this data: we wanted to see if there was any correlation between the area of land covered by vegetation and the surface area of lakes in the same region, or if we could implement a machine learning model - or anything similar in functionality - capable of taking satellite images (like we did with the [phase 2 program](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/tree/main/Phase_1-3)) and predicting the future variations of parameters linked to the environment and climate change, such as vegetation area, vegetation health, area covered by water, etc...
 ***
 ## The process
+First of all, we analised the data we received, the `data.csv` file from our program that ran on the ISS. We used converted the file into *.xlsx* format and used Microsoft Excel to plot some graphs that could tell us about how the data collection went. For example, we noticed that the altitude of the ISS followed a periodic course, with the highest point (presumably the apogee) being at the highest latitudes and the lowest (perigee) around the equator:
+
+![AltitudePlot](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/Altitude.PNG)
+
 In short, what we needed to do was:
 - Find an area that suits our research, based on the analysis we did on the CSV data in MS Excel
 - Download a set of NIR satellite pictures from the internet and edit them to roughly simulate what we would get by running our [phase 2 program](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/tree/main/Phase_1-3) for a long period of time (years)
@@ -36,5 +40,4 @@ The hyperparameters of the SARIMA model are all set to 1 by default, but they ca
 The individuals of the genetic algorithm represent a SARIMA model with their properties being the hyperparameters of the model. The algorithm works by creating an initial generation with random parameters and then going through each generation by selecting and breeding the best individuals in order to get the following generation through mating and mutation. The fitness of each individual is determined by training their respective SARIMA and evaluating its root-mean-square error, which has to be as low as possible.
 ---
 ## Findings
-First of all, we analised the data we received, the `data.csv` file from our program that ran on the ISS. We used converted the file into *.xlsx* format and used Microsoft Excel to plot some graphs that could tell us about how the data collection went. For example, we noticed that the altitude of the ISS followed a periodic course, with the highest point (presumably the apogee) being at the highest latitudes and the lowest (perigee) around the equator:
-![AltitudePlot](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/Altitude.PNG)
+
