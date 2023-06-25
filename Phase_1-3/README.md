@@ -134,7 +134,7 @@ Given an OpenCV image, this function uses a series of image manipulations to ret
 
 |Original image|Segmented image|
 |--|--|
-| ![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![segmented image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/segmentationResult.png) |
+| ![original image](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/originalImage.png)|![segmented image](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/segmentationResult.png) |
 
 ```mermaid
 flowchart  TD;
@@ -206,7 +206,7 @@ Paramaters:
 Uses the window mask of the image `scaledIm` to efficiently find a circle that fits the edge of the window, scales up this circle based on `scalingFactor` to adapt it to the unscaled picture, and returns the image `im` accordingly cropped.
 |Scaled image|Original image|Mask with circle|Cropped image|
 |--|--|--|--|
-|![scaled image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/scaledImage.png)|![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage2.jpg)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/mask.png)|![cropped image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/croppedImage2.jpg)|
+|![scaled image](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/scaledImage.png)|![original image](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/originalImage2.jpg)|![mask](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/mask.png)|![cropped image](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/croppedImage2.jpg)|
 
 
 ```mermaid
@@ -234,7 +234,7 @@ This function converts an 8-bit image to a 24-bit image, while colouring the whi
 
 |Greyscale|Mask
 |--|--|
-|![greyscale](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/greyscale.jpg)|![coloured](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/water.jpg)|
+|![greyscale](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/greyscale.jpg)|![coloured](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/water.jpg)|
 
 ```mermaid
 flowchart  TD;
@@ -256,7 +256,7 @@ This is obtained by drastically increasing the contrast of the input image to cr
 
 |Original image|Mask
 |--|--|
-|![Original](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/filled.jpg)|
+|![Original](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/originalImage.png)|![mask](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/filled.jpg)|
 
 ```mermaid
 flowchart  TD;
@@ -277,7 +277,7 @@ Given a window mask as the argument, this function flood fills the black area ar
 
 |Original image|Mask|Filled mask|
 |--|--|--|
-|![Original](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/originalImage.png)|![mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/notFilled.jpg)|![filled mask](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/filled.jpg)|
+|![Original](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/originalImage.png)|![mask](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/notFilled.jpg)|![filled mask](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/filled.jpg)|
 
 
 ```mermaid
@@ -300,7 +300,7 @@ This function takes in a 24-bit _OpenCV image_ and a number _k_, which is 75 by 
 
 |Original image|Contrasted image|
 |--|--|
-| ![original image](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/notContrasted.jpg) |![contrasted](https://github.com/Federi0411-0684/Parsec-AstroPi/blob/Pictures/contrasted.jpg)|
+| ![original image](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/notContrasted.jpg) | ![contrasted](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/master/Pictures/contrasted.jpg) |
 
 
 ```mermaid
