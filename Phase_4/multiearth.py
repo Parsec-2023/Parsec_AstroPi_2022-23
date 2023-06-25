@@ -37,7 +37,7 @@ def main():
 
         # make an empty list of images
         mosaics = []
-        """
+        
         if validDate(start, end, "2017-03-28", "2023-06-12"):
             # sentinel 2
             imS2 = (
@@ -217,7 +217,7 @@ def main():
             mosaicL9 = imL9.mosaic()
             # add the image to the list
             mosaics.append(mosaicL9)
-            """
+            
         if validDate(start, end, "2000-02-24", "2023-02-10"):
             # MODIS
             modis = (
