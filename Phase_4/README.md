@@ -55,8 +55,17 @@ For this reason, the final program `createdataset.py` takes the images between F
 - [`correlation.py`](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Phase_4/correlation.py) tries to establish if there is any correlation between any of the possible combinations in which two parameters from the dataset can be picked. This program extracts two columns from the *CSV* file and calculates the cross-correlation and the Kendall's τ of the two data series.
 - The dataset is then used by [`sarima.py`](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Phase_4/sarima.py), which reads one of the columns, trains a SARIMA statistical model, makes predictions and calculates its root-mean-square error to evaluate the accuracy of the model.\
 The hyperparameters of the SARIMA model are all set to 1 by default, but they can be optimised by running [`genetictraining.py`](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Phase_4/genetictraining.py), which takes the same dataset and uses a genetic algorithm to find the best hyperparameters and save them as a Numpy array file (`hyperparams.npy`). If `sarima.py` finds this file in its folder, it automatically retrieves the optimal hyperparameters from it.\
-The individuals of the genetic algorithm represent a SARIMA model with their properties being the hyperparameters of the model. The algorithm works by creating an initial generation with random parameters and then going through each generation by selecting and breeding the best individuals in order to get the following generation through mating and mutation. The fitness of each individual is determined by training their respective SARIMA and evaluating its root-mean-square error, which has to be as low as possible.
+The individuals of the genetic algorithm represent a SARIMA model, with their properties being the hyperparameters of the model. The algorithm works by creating an initial generation with random parameters and then going through each generation by selecting and breeding the best individuals in order to get the following generation through mating and mutation. The fitness of each individual is determined by training its respective SARIMA and evaluating its root-mean-square error, which has to be as low as possible.\
+
+We focused our attention on South Carolina, of which we had a good picture with many big lakes, such as Lake Marion and Lake Moultrie, and an interesting coastline:
+
+![South carolina astropi camera](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/SouthCarolinaISS.jpg)
+
 ---
 ## Findings
+The dataset created by `createdataset.py` was converted into *.xlsx* format, and we used MS Excel to plot the data. These graphs, that show the evolution of vegetation and water area in *m<sup>2</sup>* and NDVI, are an example:
 
-FINISCIIII
+![Water-vegetation area](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/WaterVegetation.jpg)
+![Water-NDVI](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/WaterNDVI.jpg)
+
+At this point, we were 
