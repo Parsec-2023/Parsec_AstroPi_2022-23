@@ -29,18 +29,22 @@ But then we moved on to what we were actually studying, water and vegetation. In
 	- see if we could measure the effects of climate change on lakes and coasts
 ## Method
 We wanted to achieve all of this with an automatic process, with us writing our own code that would do everything, instead of using premade tools such as QGIS either manually (which would have been impossible) or automatically.\
-Before starting to work on the image manipulation part of the program, the images that we downloaded had to be comparable and similar to the ones we got from the Astro Pi camera on the ISS, as we wanted to simulate our ISS program running for many years. In order to achieve this, we had to estimate the right focal length of the lens that was used on the ISS, so that we could use the formula that we derived: $realDistanceHeight=\frac{sensorHeight \cdot altitude}{focalLength}$\
+Before starting to work on the image manipulation part of the program, the images that we downloaded had to be comparable and similar to the ones we got from the Astro Pi camera on the ISS, as we wanted to simulate our ISS program running for many years. In order to achieve this, we had to estimate the right focal length of the lens that was used on the ISS, so that we could use the formula that we derived: $realDistanceHeight=\frac{sensorHeight \cdot altitude}{focalLength}$ and similarly $realDistanceWidth=\frac{sensorWidth \cdot altitude}{focalLength}$\
 Since we used the real distance on the Earth's surface to tell the API how big of an area to capture, we had to calculate this value as a function of the altitude of the ISS.
-With the altitude of one of the pictures and the size of the Astro Pi camera sensor:\
+With the altitude of one of the pictures and the size of the Astro Pi camera sensor:
+
 | Altitude [m] | Sensor width [mm] | Sensor height [mm] |
 |--|--|--|
 | 416037 | 6.287 | 4.712 |
-The resulting width and height of the area of land captured by the camera are:\
+
+The resulting width and height of the area of land captured by the camera are:
+
 | Focal length | Width [m] | Height [m] |
 |--|--|--|
 | 17.53 mm | 149209 | 111829 |
 | 6 mm | 435937 | 326727 |
-| 5 mm | 523125 | 392073 |\
+| 5 mm | 523125 | 392073 |
+
 We measured some pictures on Google Earth and estimated their real width to be about *524460 m* and their height *392780 m*, therefore the right focal length was *5 mm*, as the values that we found matched almost perfectly with the ones that were calculated using *5 mm* for the focal length.\
 Now it was time to start working towards our research goals.
 This is the process we came up with:
