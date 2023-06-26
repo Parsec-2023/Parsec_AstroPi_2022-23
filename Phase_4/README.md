@@ -57,15 +57,32 @@ For this reason, the final program `createdataset.py` takes the images between F
 The hyperparameters of the SARIMA model are all set to 1 by default, but they can be optimised by running [`genetictraining.py`](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Phase_4/genetictraining.py), which takes the same dataset and uses a genetic algorithm to find the best hyperparameters and save them as a Numpy array file (`hyperparams.npy`). If `sarima.py` finds this file in its folder, it automatically retrieves the optimal hyperparameters from it.\
 The individuals of the genetic algorithm represent a SARIMA model, with their properties being the hyperparameters of the model. The algorithm works by creating an initial generation with random parameters and then going through each generation by selecting and breeding the best individuals in order to get the following generation through mating and mutation. The fitness of each individual is determined by training its respective SARIMA and evaluating its root-mean-square error, which has to be as low as possible.\
 
+___
 We focused our attention on South Carolina, of which we had a good picture with many big lakes, such as Lake Marion and Lake Moultrie, and an interesting coastline:
 
 ![South carolina astropi camera](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/SouthCarolinaISS.jpg)
 
----
-## Findings
-The dataset created by `createdataset.py` was converted into *.xlsx* format, and we used MS Excel to plot the data. These graphs, that show the evolution of vegetation and water area in *m<sup>2</sup>* and NDVI, are an example:
+The previously described process was applied to this geographical area. `createdataset.py` downloaded 1190 images between 2000 and 2023 at a 7-day interval. The resulting dataset was converted into *.xlsx* format, and we used MS Excel to plot the data. These graphs, that show the evolution of vegetation and water area in *m<sup>2</sup>* and NDVI, are an example:
 
 ![Water-vegetation area](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/WaterVegetation.jpg)
 ![Water-NDVI](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/WaterNDVI.jpg)
 
-At this point, we were 
+At this point, we were still considering if it was better to use a recurrent LSTM (Long Short-Term Memory) neural network or a statistical model for the predictions; but the evident yearly seasonality, which we expected to see, pointed us towards a SARIMAX model (Seasonal Autoregressive Integrated Moving Average) as we thought it would be faster to implement than a properly optimised LSTM neural network.\
+Eventually, we realised that the predictions of the SARIMA model were not accurate enough with the default hyperparameters set to 1, so we implemented a grid search to find better ones. But this solution required hundreds of iterations, of possible combinations to be tested. Since going back to the neural network would have pushed us beyond the deadline, this led us to the genetic algorithm, which is less consistent but grants some degree of optimisation in few iterations. And it worked out: with only two generations, the accuracy of the model increased by 4%, and in the case of South Carolina, the root-mean-square error droppet to just 1.8%.\
+
+After that, we went on and evaluated the correlation between the data with [`correlation.py`](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Phase_4/correlation.py) and also examined more in depth the evolution of each parameter by analysing the dataset with Excel and Visual Basic to perform a regression analysis.
+For example, we isolated the data in monthly groups, therefore eliminating the seasonality and just seeing the general trend of the mean NDVI for each month:
+
+![mean NDVI](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/meanNDVI.jpg)
+
+And NDWI:
+
+![mean NDWI](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/meanNDWI.jpg)
+
+---
+## Issues
+sas
+
+---
+## Findings
+
