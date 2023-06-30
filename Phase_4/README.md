@@ -68,7 +68,7 @@ The previously described process was applied to this geographical area. `created
 ![Water-NDVI](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Pictures/WaterNDVI.jpg)
 
 At this point, we were still considering if it was better to use a recurrent LSTM (Long Short-Term Memory) neural network or a statistical model for the predictions; but the evident yearly seasonality, which we expected to see, pointed us towards a SARIMAX model (Seasonal Autoregressive Integrated Moving Average) as we thought it would be faster to implement than a properly optimised LSTM neural network.\
-Eventually, we realised that the predictions of the SARIMA model were not accurate enough with the default hyperparameters set to 1, so we implemented a grid search to find better ones. But this solution required hundreds of iterations, of possible combinations to be tested. Since going back to the neural network would have pushed us beyond the deadline, this led us to the genetic algorithm, which is less consistent but grants some degree of optimisation in few iterations. And it worked out: with only two generations, the accuracy of the model increased by 4%, and in the case of South Carolina, the root-mean-square error droppet to just 1.8%.\
+Eventually, we realised that the predictions of the SARIMA model were not accurate enough with the default hyperparameters set to 1, so we implemented a grid search to find better ones. But this solution required hundreds of iterations, of possible combinations to be tested. Since going back to the neural network would have pushed us beyond the deadline, this led us to the genetic algorithm, which is less consistent but grants some degree of optimisation in few iterations. And it worked out: with only two generations, the accuracy of the model increased by *4%*, and in the case of South Carolina, the root-mean-square error dropped to just *1.8%*.\
 
 After that, we went on and evaluated the correlation between the data with [`correlation.py`](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Phase_4/correlation.py) and also examined more in depth the evolution of each parameter by analysing the dataset with Excel and Visual Basic to perform a regression analysis.
 For example, we isolated the data in monthly groups, therefore eliminating the seasonality and just seeing the general trend of the mean NDVI for each month:
@@ -81,8 +81,19 @@ And NDWI:
 
 ---
 ## Issues
-sas
+There were many outliers in our dataset: it can be seen in the spikes and peaks in the graphs. We found out that the some of the pictures that we were getting from the MODIS Google Earth Engine API dataset presented in seemingly random areas some black patches, groups of pixels that were set to 0. We were not able to explain the reason for this, as all three of the colour bands were there and we did not have the opportunity to study a possible relation of these black areas with particular features of the image.
 
 ---
 ## Findings
+### Data analysis
+We were able to detect changes in the vegetation and in the water area. The mean NDVI showed a *3%* increase over the course of 23 years in our regression analysis. Unfortunately, we could not see any relevant variation in the sea level, but this is very likely to be due to the fact that the rate of change is smaller than the resolution of the AstroPi camera at the altitude of the ISS (which equates to more than *130 m/px*).
+### SARIMAx model
+We managed to make predictions with a root-mean-square error of only 1.8% of the vegetation area of the part of South Carolina that we considered.
+### Correlation
+We found a weak but plausible correlation between the mean NDWI and the vegetation area, which is indicated by the results of `correlation.py`: it found a *Kendall's τ* of *0.3338717* and a *p-value* of *4.04⋅10<sup>-67</sup>*
 
+---
+## Conclusion
+Despite these issues, we were able to accurately predict the evolution of the
+considered areas using the SARIMA model and we found a possible correlation
+between the NDWI and the area covered by vegetation. Therefore, we think we can consider our experiment a success, as we accomplished every goal that we had set beforehand.
