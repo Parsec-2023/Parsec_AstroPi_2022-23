@@ -15,4 +15,4 @@ We decided to split the result of our work into two parts inside two different d
 ### [Phase 4](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/tree/master/Phase_4)
 The final report is available here:
 ### [Final report](https://github.com/Parsec2k23/Parsec_AstroPi_2022-23/blob/main/Phase_4/Parsec%20-%20SpaceLab%202023%20Report.pdf) 
-As well as in the official ESA article: [https://www.esa.int/Education/AstroPI/Astro_Pi_Mission_Space_Lab_2022_23_The_results](https://www.esa.int/Education/AstroPI/Astro_Pi_Mission_Space_Lab_2022_23_The_results)
+...as well as in the official ESA article: [https://www.esa.int/Education/AstroPI/Astro_Pi_Mission_Space_Lab_2022_23_The_results](https://www.esa.int/Education/AstroPI/Astro_Pi_Mission_Space_Lab_2022_23_The_results)
